@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">कृषिमित्र</string>
+    <string name="greeting_farmer">जय किसान, %1$s!</string>
+    <string name="quick_actions">त्वरित कार्रवाई</string>
+    <string name="crop_advisor">फसल सलाहकार</string>
+    <string name="disease_scan">रोग जांच</string>
+    <string name="krishibot">कृषिबोट</string>
+    <string name="market_price">मंडी भाव</string>
+    <string name="community">समुदाय</string>
+    <string name="video_hub">वीडियो हब</string>
+    <string name="govt_schemes">सरकारी योजनाएं</string>
+    <string name="farm_journal">फार्म जर्नल</string>
+    <string name="soil_health">मिट्टी का स्वास्थ्य</string>
+    <string name="irrigation">सिंचाई</string>
+</resources>

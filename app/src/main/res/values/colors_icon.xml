@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Premium Dark Theme Palette -->
+    <color name="icon_bg_start">#0A1A0D</color>
+    <color name="icon_bg_end">#14331A</color>
+    <color name="premium_green">#2ECC71</color>
+    <color name="premium_gold">#F1C40F</color>
+</resources>

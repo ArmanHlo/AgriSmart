@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+    "ministry": "Ministry of Agriculture and Farmers Welfare",
+    "benefit": "₹6,000 per year in three equal installments",
+    "eligibility": "Small and marginal farmer families with combined landholding up to 2 hectares",
+    "applyLink": "https://pmkisan.gov.in/",
+    "state": "Central"
+  },
+  {
+    "id": 2,
+    "name": "Pradhan Mantri Fasal Bima Yojana (PMFBY)",
+    "ministry": "Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Financial support to farmers suffering crop loss/damage arising out of unforeseen events",
+    "eligibility": "All farmers including sharecroppers and tenant farmers growing notified crops",
+    "applyLink": "https://pmfby.gov.in/",
+    "state": "Central"
+  },
+  {
+    "id": 3,
+    "name": "Kisan Credit Card (KCC) Scheme",
+    "ministry": "Reserve Bank of India & NABARD",
+    "benefit": "Timely credit for agriculture and allied activities, including purchase of seeds, fertilizers",
+    "eligibility": "Individual/Joint borrowers, Tenant farmers, Oral Lessees and Sharecroppers",
+    "applyLink": "https://www.nabard.org/",
+    "state": "Central"
+  },
+  {
+    "id": 4,
+    "name": "Soil Health Card Scheme",
+    "ministry": "Ministry of Agriculture and Farmers Welfare",
+    "benefit": "Card with status of soil health and dosage of fertilizers for different crops",
+    "eligibility": "All farmers in the country",
+    "applyLink": "https://soilhealth.dac.gov.in/",
+    "state": "Central"
+  },
+  {
+    "id": 5,
+    "name": "PM Krishi Sinchai Yojana (PMKSY)",
+    "ministry": "Ministry of Agriculture & Farmers Welfare",
+    "benefit": "Expanding cultivable area under assured irrigation, improve on-farm water use efficiency",
+    "eligibility": "Farmers with cultivable land",
+    "applyLink": "https://pmksy.gov.in/",
+    "state": "Central"
+  }
+]
