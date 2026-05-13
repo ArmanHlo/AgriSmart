@@ -73,11 +73,39 @@ class PlantDiseaseClassifier @Inject constructor(
 
     private fun getTreatmentForDisease(disease: String): String {
         return when {
-            disease.contains("Blight", ignoreCase = true) -> "Use fungicides containing copper or mancozeb. Remove infected plants."
-            disease.contains("Rust", ignoreCase = true) -> "Apply sulfur-based fungicides. Ensure good air circulation."
-            disease.contains("Spot", ignoreCase = true) -> "Reduce overhead watering. Use neem oil or appropriate fungicides."
-            disease.contains("Healthy", ignoreCase = true) -> "Your plant looks healthy! Keep up the good work with regular care."
-            else -> "Consult a local agricultural expert for a detailed treatment plan."
+            disease.contains("Blight", ignoreCase = true) -> {
+                "1. Apply fungicides containing Copper or Mancozeb immediately.\n" +
+                "2. Remove and burn infected leaves to prevent spread.\n" +
+                "3. Avoid overhead watering and ensure good air circulation."
+            }
+            disease.contains("Rust", ignoreCase = true) -> {
+                "1. Apply sulfur-based fungicides or Neem oil.\n" +
+                "2. Destroy infected plant debris after harvest.\n" +
+                "3. Use rust-resistant varieties for the next crop."
+            }
+            disease.contains("Spot", ignoreCase = true) -> {
+                "1. Use Chlorothalonil or copper-based sprays.\n" +
+                "2. Reduce humidity by proper spacing between plants.\n" +
+                "3. Avoid working in the field when plants are wet."
+            }
+            disease.contains("Virus", ignoreCase = true) || disease.contains("Curl", ignoreCase = true) -> {
+                "1. Control whiteflies or aphids using insecticidal soap.\n" +
+                "2. Remove and destroy severely infected plants.\n" +
+                "3. Use yellow sticky traps to monitor and catch pests."
+            }
+            disease.contains("Mildew", ignoreCase = true) -> {
+                "1. Spray a mix of baking soda, water, and non-detergent soap.\n" +
+                "2. Increase sunlight exposure and improve airflow.\n" +
+                "3. Apply fungicides like Myclobutanil if severe."
+            }
+            disease.contains("Healthy", ignoreCase = true) -> {
+                "Your plant looks healthy! Keep up the good work with regular watering and balanced fertilization."
+            }
+            else -> {
+                "1. Monitor the plant closely for any worsening symptoms.\n" +
+                "2. Keep the area clean of weeds and fallen debris.\n" +
+                "3. Consult a local agricultural officer for a specific chemical recommendation."
+            }
         }
     }
 

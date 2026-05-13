@@ -344,7 +344,7 @@ fun ResultView(state: DiseaseScannerState, onReset: () -> Unit) {
             KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface2.toBrush()) {
                 Column(modifier = Modifier.padding(Spacing.md)) {
                     Text("CROP DETECTED", style = TypographyTokens.Label, color = DarkTextSub)
-                    Text(result.cropName, style = TypographyTokens.HeadingM)
+                    Text(result.cropName, style = TypographyTokens.HeadingM, color = Color.White)
                     
                     if (!isHealthy) {
                         Spacer(Modifier.height(Spacing.md))
@@ -359,7 +359,7 @@ fun ResultView(state: DiseaseScannerState, onReset: () -> Unit) {
             KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface.toBrush()) {
                 Column(modifier = Modifier.padding(Spacing.md)) {
                     Text(if (isHealthy) "CARE TIPS" else "TREATMENT PLAN", style = TypographyTokens.Label, color = DarkTextSub)
-                    Text(result.treatment, style = TypographyTokens.BodyM)
+                    Text(result.treatment, style = TypographyTokens.BodyM, color = Color.White)
                 }
             }
 

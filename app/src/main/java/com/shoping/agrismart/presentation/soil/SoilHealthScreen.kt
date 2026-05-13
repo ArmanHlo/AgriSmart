@@ -20,6 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -29,6 +32,13 @@ fun SoilHealthScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(state.result) {
+        if (state.result != null) {
+            scrollState.animateScrollTo(scrollState.maxValue)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize().background(DarkBg)) {
         Column(
@@ -88,7 +98,36 @@ fun SoilHealthScreen(
                             placeholder = { Text("Enter pH (0-14)", color = DarkTextSub.copy(0.5f)) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = ShapeM,
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandGreenLight)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = DarkText,
+                                unfocusedTextColor = DarkText,
+                                focusedBorderColor = BrandGreenLight,
+                                unfocusedBorderColor = DarkBorder,
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            )
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(Spacing.md))
+
+                // NPK Info
+                KrishiCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = DarkSurface2.asBrush()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(Spacing.md),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Info, null, tint = BrandGreenGlow, modifier = Modifier.size(20.dp))
+                        Spacer(Modifier.width(Spacing.s))
+                        Text(
+                            "N-P-K stands for Nitrogen, Phosphorus, and Potassium. These are essential nutrients for plant growth.",
+                            style = TypographyTokens.Micro,
+                            color = DarkTextSub
                         )
                     }
                 }
@@ -97,9 +136,9 @@ fun SoilHealthScreen(
 
                 // NPK Inputs
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
-                    NPKInput("Nitrogen (N)", state.nitrogen, Modifier.weight(1f), viewModel::onNitrogenChange)
-                    NPKInput("Phosphorus (P)", state.phosphorus, Modifier.weight(1f), viewModel::onPhosphorusChange)
-                    NPKInput("Potassium (K)", state.potassium, Modifier.weight(1f), viewModel::onPotassiumChange)
+                    NPKInput("N", "Nitrogen\n(ppm)", state.nitrogen, Modifier.weight(1f), viewModel::onNitrogenChange)
+                    NPKInput("P", "Phosphorus\n(ppm)", state.phosphorus, Modifier.weight(1f), viewModel::onPhosphorusChange)
+                    NPKInput("K", "Potassium\n(ppm)", state.potassium, Modifier.weight(1f), viewModel::onPotassiumChange)
                 }
 
                 Spacer(Modifier.height(Spacing.xl))
@@ -107,7 +146,10 @@ fun SoilHealthScreen(
                 GlowButton(
                     text = "Generate Soil Health Report",
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = viewModel::analyzeSoil
+                    onClick = {
+                        keyboardController?.hide()
+                        viewModel.analyzeSoil()
+                    }
                 )
 
                 if (state.result != null) {
@@ -117,6 +159,13 @@ fun SoilHealthScreen(
                     state.recommendations.forEach { recommendation ->
                         SoilTipCard(recommendation, BrandGreenGlow)
                     }
+
+                    Spacer(Modifier.height(Spacing.xl))
+                    SectionHeader(title = "Improvement Tips")
+                    
+                    SoilTipCard("Use organic mulch to retain moisture and nutrients.", SuccessGreen)
+                    SoilTipCard("Consider green manuring with legumes before sowing.", BrandSky)
+                    SoilTipCard("Add gypsum if soil pH is too alkaline (>8.5).", WarningAmber)
                     
                     Spacer(Modifier.height(Spacing.m))
                     TextButton(onClick = viewModel::reset, modifier = Modifier.fillMaxWidth()) {
@@ -124,11 +173,18 @@ fun SoilHealthScreen(
                     }
                 } else {
                     Spacer(Modifier.height(Spacing.xl))
-                    SectionHeader(title = "Improvement Tips")
-                    
-                    SoilTipCard("Use organic mulch to retain moisture and nutrients.", SuccessGreen)
-                    SoilTipCard("Consider green manuring with legumes before sowing.", BrandSky)
-                    SoilTipCard("Add gypsum if soil pH is too alkaline (>8.5).", WarningAmber)
+                    KrishiCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        gradient = DarkSurface2.asBrush()
+                    ) {
+                        Text(
+                            "Enter the parameters above and click 'Generate' to see your soil report and tips.",
+                            modifier = Modifier.padding(Spacing.md),
+                            style = TypographyTokens.BodyS,
+                            color = DarkTextSub,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
+                    }
                 }
 
                 Spacer(Modifier.height(Spacing.huge))
@@ -155,11 +211,11 @@ fun SoilHeader(onBack: () -> Unit) {
 }
 
 @Composable
-fun NPKInput(label: String, value: String, modifier: Modifier, onValueChange: (String) -> Unit) {
+fun NPKInput(symbol: String, label: String, value: String, modifier: Modifier, onValueChange: (String) -> Unit) {
     KrishiCard(modifier = modifier, gradient = DarkSurface.asBrush()) {
         Column(modifier = Modifier.padding(Spacing.m), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label.take(1), style = TypographyTokens.HeadingM, color = BrandGreenGlow)
-            Text(label.substringAfter("(").substringBefore(")"), style = TypographyTokens.Micro, color = DarkTextSub)
+            Text(symbol, style = TypographyTokens.HeadingM, color = BrandGreenGlow)
+            Text(label, style = TypographyTokens.Micro, color = DarkTextSub)
             Spacer(Modifier.height(Spacing.s))
             OutlinedTextField(
                 value = value,
@@ -167,7 +223,15 @@ fun NPKInput(label: String, value: String, modifier: Modifier, onValueChange: (S
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = TypographyTokens.BodyM.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center),
                 shape = ShapeS,
-                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandGreenLight)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DarkText,
+                    unfocusedTextColor = DarkText,
+                    focusedBorderColor = BrandGreenLight,
+                    unfocusedBorderColor = DarkBorder,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent
+                )
             )
         }
     }

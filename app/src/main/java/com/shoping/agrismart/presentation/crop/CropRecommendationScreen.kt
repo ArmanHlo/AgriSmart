@@ -205,12 +205,19 @@ fun LocationStep(selected: String, onSelect: (String) -> Unit) {
         subtitle = "Climate vary significantly by region.",
         icon = Icons.Default.LocationOn
     ) {
-        val states = listOf("Punjab", "Haryana", "UP", "Maharashtra", "Gujarat", "Karnataka", "Bihar", "MP")
+        val states = listOf(
+            "Punjab", "Haryana", "UP", "Maharashtra",
+            "Gujarat", "Karnataka", "Bihar", "MP",
+            "Rajasthan", "West Bengal", "Andhra Pradesh", "Telangana",
+            "Tamil Nadu", "Odisha", "Kerala", "Assam",
+            "Chhattisgarh", "Jharkhand", "Uttarakhand", "Himachal Pradesh",
+            "Other"
+        )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(Spacing.m),
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
-            modifier = Modifier.height(300.dp)
+            modifier = Modifier.height(400.dp)
         ) {
             items(states) { state ->
                 SelectableOptionCard(

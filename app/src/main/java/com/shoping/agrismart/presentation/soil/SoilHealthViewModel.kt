@@ -23,7 +23,7 @@ class SoilHealthViewModel @Inject constructor() : ViewModel() {
     val state = _state.asStateFlow()
 
     fun onPhChange(value: String) {
-        if (value.isEmpty() || (value.toDoubleOrNull() ?: -1.0) in 0.0..14.0) {
+        if (value.isEmpty() || value == "." || value.toDoubleOrNull() != null) {
             _state.update { it.copy(ph = value) }
         }
     }
