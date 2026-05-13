@@ -1,6 +1,6 @@
 package com.shoping.agrismart.presentation.auth
 
-import android.app.Activity
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shoping.agrismart.domain.model.User
@@ -109,6 +109,19 @@ class AuthViewModel @Inject constructor(
             repository.saveUserProfile(updatedUser)
                 .onSuccess {
                     _state.update { it.copy(isLoading = false, isProfileSaved = true) }
+                }
+                .onFailure { e ->
+                    _state.update { it.copy(isLoading = false, error = e.message) }
+                }
+        }
+    }
+
+    fun updateProfileImage(uri: Uri) {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+            repository.uploadProfileImage(uri)
+                .onSuccess {
+                    _state.update { it.copy(isLoading = false) }
                 }
                 .onFailure { e ->
                     _state.update { it.copy(isLoading = false, error = e.message) }

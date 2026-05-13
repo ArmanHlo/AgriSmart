@@ -1,13 +1,16 @@
 package com.shoping.agrismart.presentation.profile
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,8 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.shoping.agrismart.presentation.auth.AuthViewModel
 import com.shoping.agrismart.presentation.theme.*
 
@@ -27,6 +34,20 @@ fun ProfileScreen(
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val currentUser by viewModel.currentUser.collectAsState()
+    val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let { viewModel.updateProfileImage(it) }
+    }
+
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -54,10 +75,31 @@ fun ProfileScreen(
                     .size(120.dp)
                     .clip(CircleShape)
                     .background(DarkSurface2)
-                    .border(2.dp, BrandGreen, CircleShape),
+                    .border(2.dp, BrandGreen, CircleShape)
+                    .clickable { if (!state.isLoading) imagePicker.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Person, null, modifier = Modifier.size(64.dp), tint = DarkTextSub)
+                if (!currentUser?.profileImageUrl.isNullOrBlank()) {
+                    AsyncImage(
+                        model = currentUser?.profileImageUrl,
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(Icons.Default.Person, null, modifier = Modifier.size(64.dp), tint = DarkTextSub)
+                }
+
+                if (state.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = BrandGreen, modifier = Modifier.size(32.dp))
+                    }
+                }
             }
             
             Spacer(Modifier.height(Spacing.m))
@@ -68,7 +110,12 @@ fun ProfileScreen(
             Spacer(Modifier.height(Spacing.xl))
             
             ProfileItem("Email", currentUser?.email ?: "N/A")
-            ProfileItem("Farm Size", currentUser?.farmSize ?: "N/A")
+            
+            val farmSizeDisplay = if (!currentUser?.farmSize.isNullOrBlank()) {
+                "${currentUser?.farmSize} Acre"
+            } else "N/A"
+            ProfileItem("Farm Size", farmSizeDisplay)
+            
             ProfileItem("Primary Crop", currentUser?.primaryCrop ?: "N/A")
             
             Spacer(Modifier.weight(1f))
@@ -88,17 +135,29 @@ fun ProfileScreen(
 @Composable
 fun ProfileItem(label: String, value: String) {
     Surface(
-        modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.s),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = Spacing.s),
         color = DarkSurface,
         shape = ShapeM,
         border = BorderStroke(1.dp, DarkBorder)
     ) {
         Row(
             modifier = Modifier.padding(Spacing.m),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(label, color = DarkTextSub)
-            Text(value, color = Color.White, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+            Text(
+                text = "$label: ",
+                color = DarkTextSub,
+                style = TypographyTokens.BodyM
+            )
+            Text(
+                text = value,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                style = TypographyTokens.BodyM,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

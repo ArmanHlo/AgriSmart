@@ -1,6 +1,7 @@
 package com.shoping.agrismart.domain.repository
 
 import android.app.Activity
+import android.net.Uri
 import com.shoping.agrismart.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
@@ -19,4 +20,5 @@ interface AuthRepository {
     suspend fun logout()
     suspend fun saveUserProfile(user: User): Result<Unit>
     suspend fun getUserProfile(uid: String): Result<User?>
+    suspend fun uploadProfileImage(uri: Uri): Result<String>
 }

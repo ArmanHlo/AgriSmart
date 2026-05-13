@@ -7,5 +7,6 @@ data class User(
     val phoneNumber: String = "",
     val location: String = "",
     val farmSize: String = "",
-    val primaryCrop: String = ""
+    val primaryCrop: String = "",
+    val profileImageUrl: String? = null
 )
