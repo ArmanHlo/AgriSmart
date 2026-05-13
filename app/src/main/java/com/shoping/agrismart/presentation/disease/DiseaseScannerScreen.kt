@@ -48,6 +48,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.shoping.agrismart.presentation.theme.*
 import java.nio.ByteBuffer
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.provider.MediaStore
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun DiseaseScannerScreen(
@@ -61,6 +65,20 @@ fun DiseaseScannerScreen(
 
     val previewView = remember { PreviewView(context) }
     val imageCapture = remember { ImageCapture.Builder().build() }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            val bitmap = if (android.os.Build.VERSION.SDK_INT < 28) {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            } else {
+                val source = android.graphics.ImageDecoder.createSource(context.contentResolver, it)
+                android.graphics.ImageDecoder.decodeBitmap(source)
+            }
+            viewModel.onImageCaptured(bitmap.copy(android.graphics.Bitmap.Config.ARGB_8888, true))
+        }
+    }
 
     LaunchedEffect(Unit) {
         if (!cameraPermissionState.status.isGranted) {
@@ -137,7 +155,14 @@ fun DiseaseScannerScreen(
                 
                 Spacer(Modifier.height(Spacing.xl))
                 
-                Row(modifier = Modifier.alpha(0.7f), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .alpha(0.7f)
+                        .clip(ShapeM)
+                        .clickable { galleryLauncher.launch("image/*") }
+                        .padding(Spacing.s),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(Icons.Rounded.PhotoLibrary, null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("Import from Gallery", style = TypographyTokens.Label, color = Color.White)

@@ -20,14 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @Composable
 fun SoilHealthScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: SoilHealthViewModel = hiltViewModel()
 ) {
-    var phValue by remember { mutableStateOf("") }
-    var nitrogen by remember { mutableStateOf("") }
-    var phosphorus by remember { mutableStateOf("") }
-    var potassium by remember { mutableStateOf("") }
+    val state by viewModel.state.collectAsState()
     val scrollState = rememberScrollState()
 
     Box(modifier = Modifier.fillMaxSize().background(DarkBg)) {
@@ -69,12 +69,12 @@ fun SoilHealthScreen(
                 
                 SectionHeader(title = "Parameters", subtitle = "N-P-K & pH levels")
 
-                // pH Level Slider Simulation
+                // pH Level Input
                 KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface.asBrush()) {
                     Column(modifier = Modifier.padding(Spacing.md)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("pH Level", style = TypographyTokens.BodyM, color = DarkText)
-                            Text(if (phValue.isEmpty()) "7.0" else phValue, style = TypographyTokens.HeadingS, color = BrandGreenGlow)
+                            Text(if (state.ph.isEmpty()) "7.0" else state.ph, style = TypographyTokens.HeadingS, color = BrandGreenGlow)
                         }
                         Spacer(Modifier.height(Spacing.s))
                         // Simulated pH gradient bar
@@ -83,8 +83,8 @@ fun SoilHealthScreen(
                         ))
                         Spacer(Modifier.height(Spacing.m))
                         OutlinedTextField(
-                            value = phValue,
-                            onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) phValue = it },
+                            value = state.ph,
+                            onValueChange = viewModel::onPhChange,
                             placeholder = { Text("Enter pH (0-14)", color = DarkTextSub.copy(0.5f)) },
                             modifier = Modifier.fillMaxWidth(),
                             shape = ShapeM,
@@ -97,9 +97,9 @@ fun SoilHealthScreen(
 
                 // NPK Inputs
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
-                    NPKInput("Nitrogen (N)", nitrogen, Modifier.weight(1f)) { nitrogen = it }
-                    NPKInput("Phosphorus (P)", phosphorus, Modifier.weight(1f)) { phosphorus = it }
-                    NPKInput("Potassium (K)", potassium, Modifier.weight(1f)) { potassium = it }
+                    NPKInput("Nitrogen (N)", state.nitrogen, Modifier.weight(1f), viewModel::onNitrogenChange)
+                    NPKInput("Phosphorus (P)", state.phosphorus, Modifier.weight(1f), viewModel::onPhosphorusChange)
+                    NPKInput("Potassium (K)", state.potassium, Modifier.weight(1f), viewModel::onPotassiumChange)
                 }
 
                 Spacer(Modifier.height(Spacing.xl))
@@ -107,16 +107,29 @@ fun SoilHealthScreen(
                 GlowButton(
                     text = "Generate Soil Health Report",
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = { /* Logic */ }
+                    onClick = viewModel::analyzeSoil
                 )
 
-                Spacer(Modifier.height(Spacing.xl))
-
-                SectionHeader(title = "Improvement Tips")
-                
-                SoilTipCard("Use organic mulch to retain moisture and nutrients.", SuccessGreen)
-                SoilTipCard("Consider green manuring with legumes before sowing.", BrandSky)
-                SoilTipCard("Add gypsum if soil pH is too alkaline (>8.5).", WarningAmber)
+                if (state.result != null) {
+                    Spacer(Modifier.height(Spacing.xl))
+                    SectionHeader(title = "Results", subtitle = state.result!!)
+                    
+                    state.recommendations.forEach { recommendation ->
+                        SoilTipCard(recommendation, BrandGreenGlow)
+                    }
+                    
+                    Spacer(Modifier.height(Spacing.m))
+                    TextButton(onClick = viewModel::reset, modifier = Modifier.fillMaxWidth()) {
+                        Text("Clear Results", color = DangerRed)
+                    }
+                } else {
+                    Spacer(Modifier.height(Spacing.xl))
+                    SectionHeader(title = "Improvement Tips")
+                    
+                    SoilTipCard("Use organic mulch to retain moisture and nutrients.", SuccessGreen)
+                    SoilTipCard("Consider green manuring with legumes before sowing.", BrandSky)
+                    SoilTipCard("Add gypsum if soil pH is too alkaline (>8.5).", WarningAmber)
+                }
 
                 Spacer(Modifier.height(Spacing.huge))
             }

@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class CropEntity(
     @PrimaryKey val id: Int,
     val name: String,
+    val type: String,
     val season: String,
     val soilTypes: String, // Stored as comma-separated string
     val states: String,    // Stored as comma-separated string

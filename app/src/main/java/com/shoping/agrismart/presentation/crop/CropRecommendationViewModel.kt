@@ -52,15 +52,34 @@ class CropRecommendationViewModel @Inject constructor(
 
     private fun getRecommendations() {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, error = null) }
+            
             repository.getRecommendedCrops(
                 _state.value.selectedLocation,
                 _state.value.selectedSoilType,
-                _state.value.selectedSeason
+                _state.value.selectedSeason,
+                _state.value.waterSource,
+                _state.value.budget
             ).catch { e ->
                 _state.update { it.copy(isLoading = false, error = e.message) }
             }.collect { crops ->
-                _state.update { it.copy(isLoading = false, recommendations = crops, currentStep = 6) }
+                _state.update { it.copy(recommendations = crops, currentStep = 6) }
+                
+                // After getting crops, fetch AI advice
+                if (crops.isNotEmpty()) {
+                    repository.getAiCropAdvice(
+                        _state.value.selectedLocation,
+                        _state.value.selectedSoilType,
+                        _state.value.selectedSeason,
+                        _state.value.waterSource,
+                        _state.value.budget,
+                        crops
+                    ).collect { advice ->
+                        _state.update { it.copy(isLoading = false, aiAdvice = advice) }
+                    }
+                } else {
+                    _state.update { it.copy(isLoading = false) }
+                }
             }
         }
     }

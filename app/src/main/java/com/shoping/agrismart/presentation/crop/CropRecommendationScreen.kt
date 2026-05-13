@@ -344,7 +344,7 @@ fun BudgetStep(budget: Float, onBudgetChanged: (Float) -> Unit) {
 @Composable
 fun RecommendationResults(state: CropRecommendationState) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Our Analysis", style = TypographyTokens.HeadingM, color = Color.White)
+        Text("Top Picks for Your Farm", style = TypographyTokens.HeadingM, color = Color.White)
         Text("Optimal crops based on your conditions", style = TypographyTokens.BodyS, color = DarkTextSub)
         
         Spacer(Modifier.height(Spacing.m))
@@ -360,8 +360,56 @@ fun RecommendationResults(state: CropRecommendationState) {
                 subtitle = "Try adjusting your filters for better results."
             )
         } else {
+            val topPick = state.recommendations.first()
+            val otherPicks = state.recommendations.drop(1)
+
+            // Hero Card for #1 Position
+            KrishiCard(
+                modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.l),
+                gradient = GradientGreen,
+                glowColor = BrandGreenGlow.copy(alpha = 0.4f)
+            ) {
+                Row(
+                    modifier = Modifier.padding(Spacing.xl),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        StatusPill(text = "Best Match", type = StatusType.SUCCESS)
+                        Spacer(Modifier.height(8.dp))
+                        Text(topPick.name, style = TypographyTokens.DisplayM, color = Color.White)
+                        Text(topPick.type, style = TypographyTokens.BodyM, color = Color.White.copy(alpha = 0.8f))
+                        Spacer(Modifier.height(Spacing.m))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Icon(Icons.Default.TrendingUp, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                            Text("High Yield Potential", style = TypographyTokens.Micro, color = Color.White)
+                        }
+                    }
+                    
+                    CropScoreGauge(score = topPick.matchScore, size = 100.dp)
+                }
+            }
+
+            if (state.aiAdvice != null) {
+                KrishiCard(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.m),
+                    gradient = Brush.linearGradient(listOf(Color(0xFF1A237E), Color(0xFF311B92))),
+                    glowColor = Color(0x336200EA)
+                ) {
+                    Column(modifier = Modifier.padding(Spacing.md)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.AutoAwesome, "AI", tint = BrandAmber, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("AI INSIGHT", style = TypographyTokens.Label, color = BrandAmber)
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(state.aiAdvice, style = TypographyTokens.BodyS, color = Color.White)
+                    }
+                }
+            }
+
             LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
-                items(state.recommendations) { crop ->
+                items(otherPicks) { crop ->
                     KrishiCard(
                         modifier = Modifier.fillMaxWidth(),
                         gradient = DarkSurface2.toBrush()
@@ -371,15 +419,27 @@ fun RecommendationResults(state: CropRecommendationState) {
                                 Icon(Icons.Default.Grass, null, tint = BrandGreenLight)
                             }
                             Spacer(Modifier.width(Spacing.m))
-                            Column {
-                                Text(crop.name, style = TypographyTokens.HeadingS, color = Color.White)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(crop.name, style = TypographyTokens.HeadingS, color = Color.White)
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = crop.type,
+                                        style = TypographyTokens.Micro,
+                                        color = BrandAmber,
+                                        modifier = Modifier
+                                            .background(BrandAmber.copy(0.1f), ShapePill)
+                                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    )
+                                }
                                 Text("Matches your ${state.selectedSoilType} soil", style = TypographyTokens.Micro, color = SuccessGreen)
                                 Spacer(Modifier.height(4.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     StatusPill(text = crop.season, type = StatusType.INFO)
-                                    StatusPill(text = "High Yield", type = StatusType.SUCCESS)
+                                    StatusPill(text = "${crop.matchScore}% Match", type = StatusType.SUCCESS)
                                 }
                             }
+                            Icon(Icons.Default.ChevronRight, null, tint = DarkTextSub)
                         }
                     }
                 }

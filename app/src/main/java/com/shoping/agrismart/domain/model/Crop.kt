@@ -3,6 +3,7 @@ package com.shoping.agrismart.domain.model
 data class Crop(
     val id: Int,
     val name: String,
+    val type: String,
     val season: String,
     val soilTypes: List<String>,
     val states: List<String>,
@@ -15,5 +16,6 @@ data class Crop(
     val description: String,
     val fertilizer: String,
     val diseases: List<String>,
-    val imageUrl: String
+    val imageUrl: String,
+    val matchScore: Int = 0
 )

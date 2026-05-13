@@ -8,6 +8,17 @@ interface CropRepository {
     fun getRecommendedCrops(
         location: String,
         soilType: String,
-        season: String
+        season: String,
+        waterSource: String,
+        budget: Float
     ): Flow<List<Crop>>
+    
+    fun getAiCropAdvice(
+        location: String,
+        soilType: String,
+        season: String,
+        waterSource: String,
+        budget: Float,
+        recommendedCrops: List<Crop>
+    ): Flow<String>
 }

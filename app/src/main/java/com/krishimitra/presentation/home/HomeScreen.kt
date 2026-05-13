@@ -152,7 +152,7 @@ fun BottomNavigationBar(navController: NavHostController) {
             icon = { Icon(Icons.Default.Camera, contentDescription = "Scan") },
             label = { Text("Scan") },
             selected = false,
-            onClick = { }
+            onClick = { navController.navigate(Screen.DiseaseScanner.route) }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },

@@ -10,6 +10,7 @@ data class CropRecommendationState(
     val waterSource: String = "",
     val budget: Float = 50000f,
     val recommendations: List<Crop> = emptyList(),
+    val aiAdvice: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )
