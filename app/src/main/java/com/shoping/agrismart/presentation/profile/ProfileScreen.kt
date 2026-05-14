@@ -30,6 +30,9 @@ import com.shoping.agrismart.presentation.theme.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalConfiguration
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -39,8 +42,9 @@ fun ProfileScreen(
     val currentUser by viewModel.currentUser.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current // Listen to config changes
     
-    val currentLanguage = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: "en"
+    val currentLanguage = configuration.locales[0].language
     
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -150,6 +154,7 @@ fun ProfileScreen(
                     label = "हिन्दी",
                     selected = currentLanguage == "hi",
                     onToggle = { 
+                        Toast.makeText(context, "Switching to Hindi...", Toast.LENGTH_SHORT).show()
                         val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("hi")
                         AppCompatDelegate.setApplicationLocales(appLocale)
                     },
@@ -195,7 +200,10 @@ fun ProfileItem(label: String, value: String) {
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 style = TypographyTokens.BodyM,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
