@@ -40,9 +40,7 @@ fun ProfileScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     
-    val currentLanguage = remember {
-        AppCompatDelegate.getApplicationLocales().get(0)?.language ?: "en"
-    }
+    val currentLanguage = AppCompatDelegate.getApplicationLocales().get(0)?.language ?: "en"
     
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
