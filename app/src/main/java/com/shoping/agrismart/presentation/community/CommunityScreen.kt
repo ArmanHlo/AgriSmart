@@ -448,27 +448,51 @@ fun CommunityTab(state: CommunityState, viewModel: CommunityViewModel) {
 fun MarketplaceTab() {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(Modifier.height(Spacing.m))
-        SectionHeader(title = "Sell My Produce", subtitle = "Direct farmer-to-buyer channel")
+        SectionHeader(
+            title = "Sell My Produce", 
+            subtitle = "Direct farmer-to-buyer channel",
+            actionText = "List Item",
+            onAction = { }
+        )
         
         val products = listOf(
-            MarketProduct("Organic Wheat", "₹2,500/quintal", "Nagpur", "50 quintals available"),
-            MarketProduct("Fresh Tomatoes", "₹40/kg", "Nashik", "200 kg available")
+            MarketProduct("Organic Wheat", "₹2,500/quintal", "Nagpur", "50 quintals", "A+ Grade quality, strictly organic.", "Farmer Ramesh"),
+            MarketProduct("Fresh Tomatoes", "₹40/kg", "Nashik", "200 kg", "Red ripe tomatoes, locally grown.", "Suresh K."),
+            MarketProduct("Mustard Seeds", "₹5,200/quintal", "Ludhiana", "10 quintals", "High oil content, dried seeds.", "Amrit Singh")
         )
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
             items(products) { product ->
                 KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface2.toBrush()) {
-                    Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(60.dp).background(BrandAmber.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Storefront, null, tint = BrandAmber)
+                    Column(modifier = Modifier.padding(Spacing.md)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(50.dp).background(BrandAmber.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Storefront, null, tint = BrandAmber)
+                            }
+                            Spacer(Modifier.width(Spacing.m))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(product.name, style = TypographyTokens.HeadingS)
+                                Text(product.seller, style = TypographyTokens.Micro, color = BrandGreenGlow)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(product.price, style = TypographyTokens.BodyL, color = SuccessGreen, fontWeight = FontWeight.Bold)
+                                Text(product.stock, style = TypographyTokens.Micro, color = DarkTextSub)
+                            }
                         }
-                        Spacer(Modifier.width(Spacing.m))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(product.name, style = TypographyTokens.HeadingS)
-                            Text(product.price, style = TypographyTokens.BodyS, color = BrandGreenGlow)
-                            Text(product.location, style = TypographyTokens.Micro, color = DarkTextSub)
+                        Spacer(Modifier.height(Spacing.s))
+                        Text(product.description, style = TypographyTokens.BodyS, color = DarkText, maxLines = 2)
+                        Spacer(Modifier.height(Spacing.m))
+                        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                            GlowButton(text = "Chat with Seller", modifier = Modifier.weight(1f), onClick = { })
+                            OutlinedButton(
+                                onClick = { },
+                                modifier = Modifier.weight(1f).height(48.dp),
+                                shape = ShapePill,
+                                border = BorderStroke(1.dp, DarkBorder)
+                            ) {
+                                Text("Call", color = Color.White)
+                            }
                         }
-                        GlowButton(text = "Contact", onClick = { })
                     }
                 }
             }
@@ -518,5 +542,5 @@ fun OutbreaksTab() {
     }
 }
 
-data class MarketProduct(val name: String, val price: String, val location: String, val stock: String)
+data class MarketProduct(val name: String, val price: String, val location: String, val stock: String, val description: String, val seller: String)
 data class OutbreakReport(val title: String, val location: String, val time: String, val risk: String)
