@@ -38,6 +38,13 @@ import java.util.*
 import androidx.compose.ui.res.stringResource
 import com.shoping.agrismart.R
 
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -45,10 +52,47 @@ fun ChatScreen(
     viewModel: ChatViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
     var inputText = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    // Auto-scroll to bottom on new message or loading state change
+    // TTS Engine
+    var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    DisposableEffect(Unit) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.getDefault()
+            }
+        }
+        onDispose {
+            tts?.stop()
+            tts?.shutdown()
+        }
+    }
+
+    // STT Launcher
+    val sttLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+            spokenText?.let {
+                inputText.value = it
+                viewModel.onSendMessage(it)
+                inputText.value = ""
+            }
+        }
+    }
+
+    // Voice Out logic: Speak when bot message arrives
+    LaunchedEffect(state.messages.size) {
+        val lastMessage = state.messages.lastOrNull()
+        if (lastMessage != null && lastMessage.role == MessageRole.BOT) {
+            tts?.speak(lastMessage.content, TextToSpeech.QUEUE_FLUSH, null, null)
+        }
+    }
+
+    // Auto-scroll to bottom...
     LaunchedEffect(state.messages.size, state.isLoading, state.error) {
         if (state.messages.isNotEmpty() || state.isLoading || state.error != null) {
             val lastIndex = if (state.error != null) state.messages.size else if (state.isLoading) state.messages.size else state.messages.size - 1
@@ -101,6 +145,13 @@ fun ChatScreen(
                         viewModel.onSendMessage(inputText.value)
                         inputText.value = ""
                     }
+                },
+                onVoiceClick = {
+                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                    }
+                    sttLauncher.launch(intent)
                 },
                 isLoading = state.isLoading
             )
@@ -271,6 +322,7 @@ fun ChatInputBar(
     text: String,
     onTextChange: (String) -> Unit,
     onSend: () -> Unit,
+    onVoiceClick: () -> Unit,
     isLoading: Boolean
 ) {
     KrishiCard(
@@ -316,7 +368,7 @@ fun ChatInputBar(
             }
 
             if (text.isBlank() && !isLoading) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = onVoiceClick) {
                     Icon(Icons.Default.Mic, null, tint = BrandGreenGlow)
                 }
             }

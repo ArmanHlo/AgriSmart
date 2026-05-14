@@ -35,6 +35,8 @@ import com.shoping.agrismart.presentation.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommunityScreen(
@@ -56,42 +58,41 @@ fun CommunityScreen(
         containerColor = DarkBg
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                CommunityHeader(onBack)
-                
-                Column(modifier = Modifier.padding(horizontal = Spacing.md)) {
-                    // Topic Chips
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.s),
-                        contentPadding = PaddingValues(vertical = Spacing.m)
-                    ) {
-                        val topics = listOf("All", "Wheat", "Rice", "Organic", "Pests", "Market", "Tools")
-                        items(topics) { topic ->
-                            PremiumChip(label = topic, selected = topic == "All") { }
-                        }
-                    }
+        var selectedTab by remember { mutableIntStateOf(0) }
+        val tabs = listOf("Community", "Marketplace", "Outbreaks")
 
-                    if (state.isLoading && state.posts.isEmpty()) {
-                        repeat(3) {
-                            ShimmerBox(width = 400.dp, height = 200.dp, modifier = Modifier.padding(bottom = Spacing.m))
-                        }
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(Spacing.m),
-                            contentPadding = PaddingValues(bottom = 100.dp)
-                        ) {
-                            items(state.posts) { post ->
-                                PremiumPostCard(
-                                    post = post,
-                                    onLike = { viewModel.likePost(post.id) },
-                                    onCommentClick = { viewModel.selectPostForComments(post.id) }
-                                )
-                            }
-                        }
-                    }
+        Column(modifier = Modifier.fillMaxSize()) {
+            CommunityHeader(onBack)
+            
+            TabRow(
+                selectedTabIndex = selectedTab,
+                containerColor = DarkBg,
+                contentColor = BrandGreenGlow,
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                        color = BrandGreenGlow
+                    )
+                },
+                divider = { HorizontalDivider(color = DarkBorder) }
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = { Text(title, style = TypographyTokens.Label) }
+                    )
                 }
             }
+
+            Column(modifier = Modifier.padding(horizontal = Spacing.md)) {
+                when (selectedTab) {
+                    0 -> CommunityTab(state, viewModel)
+                    1 -> MarketplaceTab()
+                    2 -> OutbreaksTab()
+                }
+            }
+        }
 
             // New Post FAB
             FloatingActionButton(
@@ -406,3 +407,116 @@ fun PremiumCreatePostDialog(
         }
     )
 }
+
+@Composable
+fun CommunityTab(state: CommunityState, viewModel: CommunityViewModel) {
+    Column {
+        // Topic Chips
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(Spacing.s),
+            contentPadding = PaddingValues(vertical = Spacing.m)
+        ) {
+            val topics = listOf("All", "Wheat", "Rice", "Organic", "Pests", "Market", "Tools")
+            items(topics) { topic ->
+                PremiumChip(label = topic, selected = topic == "All") { }
+            }
+        }
+
+        if (state.isLoading && state.posts.isEmpty()) {
+            repeat(3) {
+                ShimmerBox(width = 400.dp, height = 200.dp, modifier = Modifier.padding(bottom = Spacing.m))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(Spacing.m),
+                contentPadding = PaddingValues(bottom = 100.dp)
+            ) {
+                items(state.posts) { post ->
+                    PremiumPostCard(
+                        post = post,
+                        onLike = { viewModel.likePost(post.id) },
+                        onCommentClick = { viewModel.selectPostForComments(post.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MarketplaceTab() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(Spacing.m))
+        SectionHeader(title = "Sell My Produce", subtitle = "Direct farmer-to-buyer channel")
+        
+        val products = listOf(
+            MarketProduct("Organic Wheat", "₹2,500/quintal", "Nagpur", "50 quintals available"),
+            MarketProduct("Fresh Tomatoes", "₹40/kg", "Nashik", "200 kg available")
+        )
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
+            items(products) { product ->
+                KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface2.toBrush()) {
+                    Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(60.dp).background(BrandAmber.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Storefront, null, tint = BrandAmber)
+                        }
+                        Spacer(Modifier.width(Spacing.m))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(product.name, style = TypographyTokens.HeadingS)
+                            Text(product.price, style = TypographyTokens.BodyS, color = BrandGreenGlow)
+                            Text(product.location, style = TypographyTokens.Micro, color = DarkTextSub)
+                        }
+                        GlowButton(text = "Contact", onClick = { })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun OutbreaksTab() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(Modifier.height(Spacing.m))
+        SectionHeader(title = "Pest Outbreaks", subtitle = "Crowdsourced reports from nearby farms")
+        
+        KrishiCard(
+            modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.m),
+            gradient = GradientAmber,
+            glowColor = BrandAmber.copy(alpha = 0.3f)
+        ) {
+            Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Warning, null, tint = Color.White)
+                Spacer(Modifier.width(Spacing.m))
+                Text("Report an outbreak in your area", color = Color.White, style = TypographyTokens.HeadingS)
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { }) { Icon(Icons.Default.AddCircle, null, tint = Color.White) }
+            }
+        }
+
+        val reports = listOf(
+            OutbreakReport("Bollworm Detected", "Wardha Region", "2 hours ago", "High Risk"),
+            OutbreakReport("Aphids Spreading", "Amravati", "5 hours ago", "Medium Risk")
+        )
+
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
+            items(reports) { report ->
+                KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface.toBrush()) {
+                    Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(report.title, style = TypographyTokens.HeadingS, color = DangerRed)
+                            Text(report.location, style = TypographyTokens.BodyS)
+                            Text(report.time, style = TypographyTokens.Micro, color = DarkTextSub)
+                        }
+                        StatusPill(text = report.risk, type = if(report.risk.contains("High")) StatusType.ERROR else StatusType.WARNING)
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class MarketProduct(val name: String, val price: String, val location: String, val stock: String)
+data class OutbreakReport(val title: String, val location: String, val time: String, val risk: String)
