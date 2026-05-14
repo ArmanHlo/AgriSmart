@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
@@ -230,15 +231,16 @@ fun WeatherMetricPill(text: String) {
 @Composable
 fun QuickActionsGrid(onNavigate: (String) -> Unit) {
     val actions = listOf(
+        HomeAction(stringResource(R.string.weather), Icons.Default.Cloud, GradientSky, Screen.Weather.route),
         HomeAction(stringResource(R.string.crop_advisor), Icons.Default.Agriculture, GradientGreen, Screen.CropAdvisor.route),
         HomeAction(stringResource(R.string.disease_scan), Icons.Default.CameraAlt, Brush.linearGradient(listOf(Color(0xFF006064), Color(0xFF00BCD4))), Screen.DiseaseScanner.route),
         HomeAction(stringResource(R.string.krishibot), Icons.Default.Chat, Brush.linearGradient(listOf(Color(0xFF4A148C), Color(0xFFAB47BC))), Screen.KrishiBot.route),
-        HomeAction(stringResource(R.string.market_price), Icons.Default.Storefront, GradientAmber, Screen.MarketPrices.route),
-        HomeAction(stringResource(R.string.weather), Icons.Default.Cloud, GradientSky, Screen.Weather.route),
-        HomeAction(stringResource(R.string.soil_health), Icons.Default.Science, GradientEarth, Screen.SoilHealth.route),
-        HomeAction(stringResource(R.string.govt_schemes), Icons.Default.Description, Brush.linearGradient(listOf(Color(0xFF1A231E), Color(0xFF5C6BC0))), Screen.GovtSchemes.route),
+        HomeAction(stringResource(R.string.market_price), Icons.AutoMirrored.Filled.TrendingUp, GradientAmber, Screen.MarketPrices.route),
+        HomeAction(stringResource(R.string.govt_schemes), Icons.Default.AccountBalance, Brush.linearGradient(listOf(Color(0xFF1A231E), Color(0xFF5C6BC0))), Screen.GovtSchemes.route),
         HomeAction(stringResource(R.string.farm_journal), Icons.Default.Book, Brush.linearGradient(listOf(Color(0xFF33691E), Color(0xFF8BC34A))), Screen.FarmJournal.route),
-        HomeAction(stringResource(R.string.market), Icons.Default.ShoppingCart, Brush.linearGradient(listOf(Color(0xFF880E4F), Color(0xFFE91E63))), Screen.MarketPrices.route)
+        HomeAction(stringResource(R.string.irrigation), Icons.Default.WaterDrop, Brush.linearGradient(listOf(Color(0xFF0277BD), Color(0xFF4FC3F7))), Screen.Irrigation.route),
+        HomeAction(stringResource(R.string.pest_calendar), Icons.Default.BugReport, Brush.linearGradient(listOf(Color(0xFFE65100), Color(0xFFFFB74D))), Screen.PestCalendar.route),
+        HomeAction(stringResource(R.string.community), Icons.Default.Groups, Brush.linearGradient(listOf(Color(0xFF4527A0), Color(0xFF7E57C2))), Screen.Community.route)
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {

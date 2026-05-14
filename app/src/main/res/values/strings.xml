@@ -31,10 +31,10 @@
     <string name="feels_like">Feels like %1$d°C</string>
     <string name="your_farm">Your Farm</string>
     <string name="crop_advisor">Crop Advisor</string>
-    <string name="disease_scan">Disease Scan</string>
-    <string name="krishibot">KrishiBot</string>
-    <string name="market_price">Market Price</string>
-    <string name="weather">Weather</string>
+    <string name="disease_scan">Disease Scanner</string>
+    <string name="krishibot">KrishiBot AI</string>
+    <string name="market_price">Market Prices</string>
+    <string name="weather">Smart Weather</string>
     <string name="soil_health">Soil Health</string>
     <string name="govt_schemes">Govt Schemes</string>
     <string name="farm_journal">Farm Journal</string>
@@ -125,4 +125,5 @@
     <string name="vegetable">Vegetable</string>
     <string name="fiber">Fiber</string>
     <string name="cash_crop">Cash Crop</string>
+    <string name="pest_calendar">Pest Calendar</string>
 </resources>

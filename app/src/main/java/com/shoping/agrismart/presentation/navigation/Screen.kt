@@ -17,6 +17,7 @@ sealed class Screen(val route: String) {
     object Community : Screen("community")
     object VideoHub : Screen("video_hub")
     object SoilHealth : Screen("soil_health")
+    object PestCalendar : Screen("pest_calendar")
     object Helpline : Screen("helpline")
     object Profile : Screen("profile")
 }

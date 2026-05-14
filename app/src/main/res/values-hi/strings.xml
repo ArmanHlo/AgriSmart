@@ -4,8 +4,8 @@
     <string name="greeting_farmer">जय किसान, %1$s!</string>
     <string name="quick_actions">त्वरित कार्रवाई</string>
     <string name="crop_advisor">फसल सलाहकार</string>
-    <string name="disease_scan">रोग जांच</string>
-    <string name="krishibot">कृषिबोट</string>
+    <string name="disease_scan">रोग स्कैनर</string>
+    <string name="krishibot">कृषिबोट AI</string>
     <string name="market_price">मंडी भाव</string>
     <string name="community">समुदाय</string>
     <string name="video_hub">वीडियो हब</string>
@@ -13,12 +13,6 @@
     <string name="farm_journal">फार्म जर्नल</string>
     <string name="soil_health">मिट्टी का स्वास्थ्य</string>
     <string name="irrigation">सिंचाई</string>
-    <string name="search_placeholder">मंडी या फसलें खोजें</string>
-    <string name="live_mandi_rates">लाइव मंडी भाव</string>
-    <string name="updated_5_mins_ago">5 मिनट पहले अपडेट किया गया</string>
-    <string name="market_pulse_header">मंडी अपडेट</string>
-    <string name="live">लाइव</string>
-    <string name="price_trend_wheat">कीमत का रुझान (गेहूं)</string>
     <string name="profile">प्रोफ़ाइल</string>
     <string name="email">ईमेल</string>
     <string name="farm_size">फार्म का आकार</string>
@@ -48,7 +42,15 @@
     <string name="high_humidity_risk">⚠️ उच्च आर्द्रता — आज फंगल जोखिम</string>
     <string name="feels_like">%1$d°C जैसा महसूस हो रहा है</string>
     <string name="your_farm">आपका फार्म</string>
-    <string name="weather">मौसम</string>
+    <string name="weather">स्मार्ट मौसम</string>
+
+    <!-- Suggestion Chips -->
+    <string name="chip_wheat_prices">गेहूं की कीमत?</string>
+    <string name="chip_tomato_disease">टमाटर रोग</string>
+    <string name="chip_pesticide_help">कीटनाशक सहायता</string>
+    <string name="chip_next_season">अगला बुवाई का मौसम</string>
+    <string name="ask_anything">खेती के बारे में कुछ भी पूछें…</string>
+    <string name="online_ai_powered">ऑनलाइन • AI संचालित</string>
 
     <!-- Crop Advisor Screen -->
     <string name="back">पीछे</string>
@@ -119,12 +121,5 @@
     <string name="vegetable">सब्जी</string>
     <string name="fiber">फाइबर</string>
     <string name="cash_crop">नकदी फसल</string>
-
-    <!-- Suggestion Chips -->
-    <string name="chip_wheat_prices">गेहूं की कीमत?</string>
-    <string name="chip_tomato_disease">टमाटर रोग</string>
-    <string name="chip_pesticide_help">कीटनाशक सहायता</string>
-    <string name="chip_next_season">अगला बुवाई का मौसम</string>
-    <string name="ask_anything">खेती के बारे में कुछ भी पूछें…</string>
-    <string name="online_ai_powered">ऑनलाइन • AI संचालित</string>
+    <string name="pest_calendar">कीट कैलेंडर</string>
 </resources>

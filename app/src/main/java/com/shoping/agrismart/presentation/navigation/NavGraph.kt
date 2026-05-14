@@ -19,6 +19,7 @@ import com.shoping.agrismart.presentation.irrigation.IrrigationScreen
 import com.shoping.agrismart.presentation.journal.FarmJournalScreen
 import com.shoping.agrismart.presentation.market.MarketPriceScreen
 import com.shoping.agrismart.presentation.onboarding.OnboardingScreen
+import com.shoping.agrismart.presentation.pest.PestCalendarScreen
 import com.shoping.agrismart.presentation.profile.ProfileScreen
 import com.shoping.agrismart.presentation.schemes.SchemeScreen
 import com.shoping.agrismart.presentation.soil.SoilHealthScreen
@@ -145,6 +146,11 @@ fun NavGraph(
         }
         composable(Screen.SoilHealth.route) {
             SoilHealthScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.PestCalendar.route) {
+            PestCalendarScreen(
                 onBack = { navController.popBackStack() }
             )
         }
