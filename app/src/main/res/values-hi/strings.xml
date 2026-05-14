@@ -122,4 +122,21 @@
     <string name="fiber">फाइबर</string>
     <string name="cash_crop">नकदी फसल</string>
     <string name="pest_calendar">कीट कैलेंडर</string>
+    <string name="pest_threats">कीट खतरे</string>
+    <string name="seasonal_threat_subtitle">मौसमी खतरे की निगरानी और उपचार</string>
+    <string name="monthly_threats">मासिक खतरे</string>
+    <string name="based_on_current_month">वर्तमान महीने के आधार पर</string>
+    <string name="prevention_plan">रोकथाम योजना</string>
+    <string name="risk_level">जोखिम स्तर</string>
+    <string name="treatment">उपचार</string>
+
+    <string name="pest_aphids">एफिड्स (Aphids)</string>
+    <string name="pest_stem_borer">तना छेदक (Stem Borer)</string>
+    <string name="pest_whitefly">सफेद मक्खी (Whitefly)</string>
+    <string name="pest_bollworm">बॉलवर्म (Bollworm)</string>
+
+    <string name="prev_neem_oil">नीम के तेल का छिड़काव</string>
+    <string name="prev_pheromones">फेरोमोन ट्रैप (Pheromone traps)</string>
+    <string name="prev_sticky_traps">पीले चिपचिपे ट्रैप</string>
+    <string name="prev_chlorpyrifos">क्लोरपायरीफॉस का छिड़काव</string>
 </resources>

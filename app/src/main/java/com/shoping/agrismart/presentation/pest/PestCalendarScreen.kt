@@ -21,18 +21,20 @@ import androidx.compose.ui.unit.dp
 import com.shoping.agrismart.R
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.compose.ui.platform.LocalContext
+
 @Composable
 fun PestCalendarScreen(
     onBack: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val currentMonth = remember { java.util.Calendar.getInstance().get(java.util.Calendar.MONTH) }
+    val context = LocalContext.current
     
     val pestData = listOf(
-        PestInfo("Aphids", "Jan-Mar", "High", "Neem Oil spray"),
-        PestInfo("Stem Borer", "Jun-Aug", "Very High", "Pheromone traps"),
-        PestInfo("Whitefly", "Sep-Nov", "Medium", "Yellow sticky traps"),
-        PestInfo("Bollworm", "Oct-Dec", "Critical", "Chlorpyrifos spray")
+        PestInfo(stringResource(R.string.pest_aphids), "Jan-Mar", "High", stringResource(R.string.prev_neem_oil)),
+        PestInfo(stringResource(R.string.pest_stem_borer), "Jun-Aug", "Very High", stringResource(R.string.prev_pheromones)),
+        PestInfo(stringResource(R.string.pest_whitefly), "Sep-Nov", "Medium", stringResource(R.string.prev_sticky_traps)),
+        PestInfo(stringResource(R.string.pest_bollworm), "Oct-Dec", "Critical", stringResource(R.string.prev_chlorpyrifos))
     )
 
     Box(modifier = Modifier.fillMaxSize().background(DarkBg)) {
@@ -63,15 +65,18 @@ fun PestCalendarScreen(
                         }
                         Spacer(Modifier.width(Spacing.m))
                         Column {
-                            Text(stringResource(R.string.pest_calendar), style = TypographyTokens.HeadingM, color = Color.White)
-                            Text("Seasonal threat monitoring", style = TypographyTokens.BodyS, color = Color.White.copy(0.8f))
+                            Text(stringResource(R.string.pest_threats), style = TypographyTokens.HeadingM, color = Color.White)
+                            Text(stringResource(R.string.seasonal_threat_subtitle), style = TypographyTokens.BodyS, color = Color.White.copy(0.8f))
                         }
                     }
                 }
 
                 Spacer(Modifier.height(Spacing.xl))
                 
-                SectionHeader(title = "Monthly Threats", subtitle = "Based on current season")
+                SectionHeader(
+                    title = stringResource(R.string.monthly_threats), 
+                    subtitle = stringResource(R.string.based_on_current_month)
+                )
 
                 pestData.forEach { pest ->
                     PestCard(pest)

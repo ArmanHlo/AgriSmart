@@ -126,4 +126,21 @@
     <string name="fiber">Fiber</string>
     <string name="cash_crop">Cash Crop</string>
     <string name="pest_calendar">Pest Calendar</string>
+    <string name="pest_threats">Pest Threats</string>
+    <string name="seasonal_threat_subtitle">Seasonal threat monitoring &amp; treatment</string>
+    <string name="monthly_threats">Monthly Threats</string>
+    <string name="based_on_current_month">Based on current month</string>
+    <string name="prevention_plan">Prevention Plan</string>
+    <string name="risk_level">Risk Level</string>
+    <string name="treatment">Treatment</string>
+
+    <string name="pest_aphids">Aphids</string>
+    <string name="pest_stem_borer">Stem Borer</string>
+    <string name="pest_whitefly">Whitefly</string>
+    <string name="pest_bollworm">Bollworm</string>
+
+    <string name="prev_neem_oil">Neem Oil spray</string>
+    <string name="prev_pheromones">Pheromone traps</string>
+    <string name="prev_sticky_traps">Yellow sticky traps</string>
+    <string name="prev_chlorpyrifos">Chlorpyrifos spray</string>
 </resources>
