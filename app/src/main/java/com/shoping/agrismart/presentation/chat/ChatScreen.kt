@@ -35,6 +35,9 @@ import com.shoping.agrismart.presentation.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
+import androidx.compose.ui.res.stringResource
+import com.shoping.agrismart.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -131,11 +134,11 @@ fun ChatHeader(onBack: () -> Unit) {
             Spacer(Modifier.width(Spacing.m))
             
             Column {
-                Text("KrishiBot", style = TypographyTokens.HeadingM)
+                Text(stringResource(R.string.krishibot), style = TypographyTokens.HeadingM)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(modifier = Modifier.size(6.dp).background(SuccessGreen, CircleShape))
                     Spacer(Modifier.width(4.dp))
-                    Text("Online · AI Powered", style = TypographyTokens.Micro, color = DarkTextSub)
+                    Text(stringResource(R.string.online_ai_powered), style = TypographyTokens.Micro, color = DarkTextSub)
                 }
             }
         }
@@ -235,7 +238,12 @@ fun TypingIndicator() {
 
 @Composable
 fun SuggestionChips(onSelect: (String) -> Unit) {
-    val chips = listOf("Wheat prices?", "Tomato disease", "Pesticide help", "Next sowing season")
+    val chips = listOf(
+        stringResource(R.string.chip_wheat_prices),
+        stringResource(R.string.chip_tomato_disease),
+        stringResource(R.string.chip_pesticide_help),
+        stringResource(R.string.chip_next_season)
+    )
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(Spacing.s),
         modifier = Modifier.fillMaxWidth()
@@ -282,7 +290,7 @@ fun ChatInputBar(
                 value = text,
                 onValueChange = onTextChange,
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Ask anything about farming...", style = TypographyTokens.BodyM, color = DarkTextSub) },
+                placeholder = { Text(stringResource(R.string.ask_anything), style = TypographyTokens.BodyM, color = DarkTextSub) },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,

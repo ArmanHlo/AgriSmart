@@ -13,6 +13,12 @@
     <string name="farm_journal">फार्म जर्नल</string>
     <string name="soil_health">मिट्टी का स्वास्थ्य</string>
     <string name="irrigation">सिंचाई</string>
+    <string name="search_placeholder">मंडी या फसलें खोजें</string>
+    <string name="live_mandi_rates">लाइव मंडी भाव</string>
+    <string name="updated_5_mins_ago">5 मिनट पहले अपडेट किया गया</string>
+    <string name="market_pulse_header">मंडी अपडेट</string>
+    <string name="live">लाइव</string>
+    <string name="price_trend_wheat">कीमत का रुझान (गेहूं)</string>
     <string name="profile">प्रोफ़ाइल</string>
     <string name="email">ईमेल</string>
     <string name="farm_size">फार्म का आकार</string>
@@ -43,4 +49,82 @@
     <string name="feels_like">%1$d°C जैसा महसूस हो रहा है</string>
     <string name="your_farm">आपका फार्म</string>
     <string name="weather">मौसम</string>
+
+    <!-- Crop Advisor Screen -->
+    <string name="back">पीछे</string>
+    <string name="next">अगला</string>
+    <string name="get_analysis">विश्लेषण प्राप्त करें</string>
+    <string name="where_is_your_farm">आपका खेत कहाँ है?</string>
+    <string name="climate_vary_subtitle">क्षेत्र के अनुसार जलवायु काफी भिन्न होती है।</string>
+    <string name="select_soil_type">मिट्टी का प्रकार चुनें</string>
+    <string name="soil_type_subtitle">पोषक तत्वों के सेवन के लिए महत्वपूर्ण कारक।</string>
+    <string name="sowing_season">बुवाई का मौसम</string>
+    <string name="sowing_season_subtitle">अपने समय को मौसम के साथ मिलाएं।</string>
+    <string name="water_source">पानी का स्रोत</string>
+    <string name="water_source_subtitle">सिंचाई क्षमता उपज को परिभाषित करती है।</string>
+    <string name="what_is_your_budget">आपका बजट क्या है?</string>
+    <string name="budget_subtitle">प्रति एकड़ अनुमानित लागत (₹ में)।</string>
+    <string name="top_picks_for_your_farm">आपके खेत के लिए शीर्ष विकल्प</string>
+    <string name="optimal_crops_subtitle">आपकी स्थितियों के आधार पर इष्टतम फसलें</string>
+    <string name="no_matches_found">कोई मेल नहीं मिला</string>
+    <string name="adjust_filters_subtitle">बेहतर परिणामों के लिए अपने फ़िल्टर को समायोजित करने का प्रयास करें।</string>
+    <string name="best_match">सबसे अच्छा मेल</string>
+    <string name="high_yield_potential">उच्च उपज क्षमता</string>
+    <string name="match_score_percentage">%1$d%% मेल</string>
+
+    <!-- States -->
+    <string name="punjab">पंजाब</string>
+    <string name="haryana">हरियाणा</string>
+    <string name="up">उत्तर प्रदेश</string>
+    <string name="maharashtra">महाराष्ट्र</string>
+    <string name="gujarat">गुजरात</string>
+    <string name="karnataka">कर्नाटक</string>
+    <string name="bihar">बिहार</string>
+    <string name="mp">मध्य प्रदेश</string>
+    <string name="rajasthan">राजस्थान</string>
+    <string name="west_bengal">पश्चिम बंगाल</string>
+    <string name="andhra_pradesh">आंध्र प्रदेश</string>
+    <string name="telangana">तेलंगाना</string>
+    <string name="tamil_nadu">तमिलनाडु</string>
+    <string name="odisha">ओडिशा</string>
+    <string name="kerala">केरल</string>
+    <string name="assam">असम</string>
+    <string name="chhattisgarh">छत्तीसगढ़</string>
+    <string name="jharkhand">झारखंड</string>
+    <string name="uttarakhand">उत्तराखंड</string>
+    <string name="himachal_pradesh">हिमाचल प्रदेश</string>
+    <string name="other">अन्य</string>
+
+    <!-- Soil Types -->
+    <string name="alluvial">जलोढ़ (Alluvial)</string>
+    <string name="black">काली (Black)</string>
+    <string name="red">लाल (Red)</string>
+    <string name="clay">चिकनी मिट्टी (Clay)</string>
+    <string name="sandy">रेतीली (Sandy)</string>
+    <string name="loamy">दोमट (Loamy)</string>
+
+    <!-- Seasons -->
+    <string name="kharif">खरीफ (मानसून)</string>
+    <string name="rabi">रबी (सर्दी)</string>
+    <string name="zaid">जायद (गर्मी)</string>
+
+    <!-- Water Sources -->
+    <string name="rainfed">वर्षा आधारित (Rainfed)</string>
+    <string name="canal">नहर (Canal)</string>
+    <string name="borewell">नलकूप (Borewell)</string>
+    <string name="drip_irrigation">ड्रिप सिंचाई</string>
+    <string name="annual">सालाना</string>
+    <string name="cereal">अनाज</string>
+    <string name="fruit">फल</string>
+    <string name="vegetable">सब्जी</string>
+    <string name="fiber">फाइबर</string>
+    <string name="cash_crop">नकदी फसल</string>
+
+    <!-- Suggestion Chips -->
+    <string name="chip_wheat_prices">गेहूं की कीमत?</string>
+    <string name="chip_tomato_disease">टमाटर रोग</string>
+    <string name="chip_pesticide_help">कीटनाशक सहायता</string>
+    <string name="chip_next_season">अगला बुवाई का मौसम</string>
+    <string name="ask_anything">खेती के बारे में कुछ भी पूछें…</string>
+    <string name="online_ai_powered">ऑनलाइन • AI संचालित</string>
 </resources>

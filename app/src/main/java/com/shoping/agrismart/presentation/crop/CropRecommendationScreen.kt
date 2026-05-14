@@ -32,6 +32,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoping.agrismart.domain.model.Crop
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.compose.ui.res.stringResource
+import com.shoping.agrismart.R
+
 @Composable
 fun CropRecommendationScreen(
     onBack: () -> Unit,
@@ -56,7 +59,7 @@ fun CropRecommendationScreen(
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
                 }
                 Spacer(Modifier.width(Spacing.m))
-                Text("Crop Advisor", style = TypographyTokens.HeadingL, color = Color.White)
+                Text(stringResource(R.string.crop_advisor), style = TypographyTokens.HeadingL, color = Color.White)
             }
         }
     ) { innerPadding ->
@@ -121,12 +124,12 @@ fun CropRecommendationScreen(
                                 shape = ShapePill,
                                 border = BorderStroke(1.dp, DarkBorder)
                             ) {
-                                Text("Back", style = TypographyTokens.HeadingS, color = DarkTextSub)
+                                Text(stringResource(R.string.back), style = TypographyTokens.HeadingS, color = DarkTextSub)
                             }
                         }
                         
                         GlowButton(
-                            text = if (state.currentStep == 5) "Get Analysis" else "Next",
+                            text = if (state.currentStep == 5) stringResource(R.string.get_analysis) else stringResource(R.string.next),
                             modifier = Modifier.weight(2f),
                             onClick = viewModel::nextStep,
                             enabled = when(state.currentStep) {
@@ -201,17 +204,32 @@ fun StepIndicator(currentStep: Int) {
 @Composable
 fun LocationStep(selected: String, onSelect: (String) -> Unit) {
     StepCard(
-        title = "Where is your farm?",
-        subtitle = "Climate vary significantly by region.",
+        title = stringResource(R.string.where_is_your_farm),
+        subtitle = stringResource(R.string.climate_vary_subtitle),
         icon = Icons.Default.LocationOn
     ) {
-        val states = listOf(
-            "Punjab", "Haryana", "UP", "Maharashtra",
-            "Gujarat", "Karnataka", "Bihar", "MP",
-            "Rajasthan", "West Bengal", "Andhra Pradesh", "Telangana",
-            "Tamil Nadu", "Odisha", "Kerala", "Assam",
-            "Chhattisgarh", "Jharkhand", "Uttarakhand", "Himachal Pradesh",
-            "Other"
+        val statesMap = listOf(
+            "Punjab" to R.string.punjab,
+            "Haryana" to R.string.haryana,
+            "UP" to R.string.up,
+            "Maharashtra" to R.string.maharashtra,
+            "Gujarat" to R.string.gujarat,
+            "Karnataka" to R.string.karnataka,
+            "Bihar" to R.string.bihar,
+            "MP" to R.string.mp,
+            "Rajasthan" to R.string.rajasthan,
+            "West Bengal" to R.string.west_bengal,
+            "Andhra Pradesh" to R.string.andhra_pradesh,
+            "Telangana" to R.string.telangana,
+            "Tamil Nadu" to R.string.tamil_nadu,
+            "Odisha" to R.string.odisha,
+            "Kerala" to R.string.kerala,
+            "Assam" to R.string.assam,
+            "Chhattisgarh" to R.string.chhattisgarh,
+            "Jharkhand" to R.string.jharkhand,
+            "Uttarakhand" to R.string.uttarakhand,
+            "Himachal Pradesh" to R.string.himachal_pradesh,
+            "Other" to R.string.other
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -219,11 +237,11 @@ fun LocationStep(selected: String, onSelect: (String) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(Spacing.m),
             modifier = Modifier.height(400.dp)
         ) {
-            items(states) { state ->
+            items(statesMap) { statePair ->
                 SelectableOptionCard(
-                    label = state,
-                    selected = selected == state,
-                    onClick = { onSelect(state) }
+                    label = stringResource(statePair.second),
+                    selected = selected == statePair.first,
+                    onClick = { onSelect(statePair.first) }
                 )
             }
         }
@@ -233,17 +251,17 @@ fun LocationStep(selected: String, onSelect: (String) -> Unit) {
 @Composable
 fun SoilStep(selected: String, onSelect: (String) -> Unit) {
     StepCard(
-        title = "Select Soil Type",
-        subtitle = "Critical factor for nutrient intake.",
+        title = stringResource(R.string.select_soil_type),
+        subtitle = stringResource(R.string.soil_type_subtitle),
         icon = Icons.Default.Terrain
     ) {
         val soils = listOf(
-            SoilOption("Alluvial", Color(0xFFD2B48C)),
-            SoilOption("Black", Color(0xFF1A1A1A)),
-            SoilOption("Red", Color(0xFFB22222)),
-            SoilOption("Clay", Color(0xFF8B4513)),
-            SoilOption("Sandy", Color(0xFFF4A460)),
-            SoilOption("Loamy", Color(0xFF556B2F))
+            SoilOption("Alluvial", R.string.alluvial, Color(0xFFD2B48C)),
+            SoilOption("Black", R.string.black, Color(0xFF1A1A1A)),
+            SoilOption("Red", R.string.red, Color(0xFFB22222)),
+            SoilOption("Clay", R.string.clay, Color(0xFF8B4513)),
+            SoilOption("Sandy", R.string.sandy, Color(0xFFF4A460)),
+            SoilOption("Loamy", R.string.loamy, Color(0xFF556B2F))
         )
         
         LazyVerticalGrid(
@@ -264,29 +282,33 @@ fun SoilStep(selected: String, onSelect: (String) -> Unit) {
                 ) {
                     Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(soil.color))
                     Spacer(Modifier.height(Spacing.xs))
-                    Text(soil.name, style = TypographyTokens.Micro, color = Color.White)
+                    Text(stringResource(soil.labelRes), style = TypographyTokens.Micro, color = Color.White)
                 }
             }
         }
     }
 }
 
-data class SoilOption(val name: String, val color: Color)
+data class SoilOption(val name: String, val labelRes: Int, val color: Color)
 
 @Composable
 fun SeasonStep(selected: String, onSelect: (String) -> Unit) {
     StepCard(
-        title = "Sowing Season",
-        subtitle = "Match your timing with the weather.",
+        title = stringResource(R.string.sowing_season),
+        subtitle = stringResource(R.string.sowing_season_subtitle),
         icon = Icons.Default.WbSunny
     ) {
-        val seasons = listOf("Kharif (Monsoon)", "Rabi (Winter)", "Zaid (Summer)")
+        val seasons = listOf(
+            "Kharif (Monsoon)" to R.string.kharif,
+            "Rabi (Winter)" to R.string.rabi,
+            "Zaid (Summer)" to R.string.zaid
+        )
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
-            seasons.forEach { season ->
+            seasons.forEach { seasonPair ->
                 SelectableOptionCard(
-                    label = season,
-                    selected = selected == season,
-                    onClick = { onSelect(season) },
+                    label = stringResource(seasonPair.second),
+                    selected = selected == seasonPair.first,
+                    onClick = { onSelect(seasonPair.first) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -297,17 +319,23 @@ fun SeasonStep(selected: String, onSelect: (String) -> Unit) {
 @Composable
 fun WaterStep(selected: String, onSelect: (String) -> Unit) {
     StepCard(
-        title = "Water Source",
-        subtitle = "Irrigation capacity defines yield.",
+        title = stringResource(R.string.water_source),
+        subtitle = stringResource(R.string.water_source_subtitle),
         icon = Icons.Default.WaterDrop
     ) {
-        val sources = listOf("Rainfed", "Canal", "Borewell", "Drip Irrigation", "Other")
+        val sources = listOf(
+            "Rainfed" to R.string.rainfed,
+            "Canal" to R.string.canal,
+            "Borewell" to R.string.borewell,
+            "Drip Irrigation" to R.string.drip_irrigation,
+            "Other" to R.string.other
+        )
         Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
-            sources.forEach { source ->
+            sources.forEach { sourcePair ->
                 SelectableOptionCard(
-                    label = source,
-                    selected = selected == source,
-                    onClick = { onSelect(source) },
+                    label = stringResource(sourcePair.second),
+                    selected = selected == sourcePair.first,
+                    onClick = { onSelect(sourcePair.first) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -318,8 +346,8 @@ fun WaterStep(selected: String, onSelect: (String) -> Unit) {
 @Composable
 fun BudgetStep(budget: Float, onBudgetChanged: (Float) -> Unit) {
     StepCard(
-        title = "What is your budget?",
-        subtitle = "Estimated cost per acre (in ₹).",
+        title = stringResource(R.string.what_is_your_budget),
+        subtitle = stringResource(R.string.budget_subtitle),
         icon = Icons.Default.Payments
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -349,10 +377,33 @@ fun BudgetStep(budget: Float, onBudgetChanged: (Float) -> Unit) {
 }
 
 @Composable
+fun translateSeason(season: String): String {
+    return when (season) {
+        "Kharif" -> stringResource(R.string.kharif)
+        "Rabi" -> stringResource(R.string.rabi)
+        "Zaid" -> stringResource(R.string.zaid)
+        "Annual" -> stringResource(R.string.annual)
+        else -> season
+    }
+}
+
+@Composable
+fun translateType(type: String): String {
+    return when (type) {
+        "Cereal" -> stringResource(R.string.cereal)
+        "Fruit" -> stringResource(R.string.fruit)
+        "Vegetable" -> stringResource(R.string.vegetable)
+        "Fiber" -> stringResource(R.string.fiber)
+        "Cash Crop" -> stringResource(R.string.cash_crop)
+        else -> type
+    }
+}
+
+@Composable
 fun RecommendationResults(state: CropRecommendationState) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text("Top Picks for Your Farm", style = TypographyTokens.HeadingM, color = Color.White)
-        Text("Optimal crops based on your conditions", style = TypographyTokens.BodyS, color = DarkTextSub)
+        Text(stringResource(R.string.top_picks_for_your_farm), style = TypographyTokens.HeadingM, color = Color.White)
+        Text(stringResource(R.string.optimal_crops_subtitle), style = TypographyTokens.BodyS, color = DarkTextSub)
         
         Spacer(Modifier.height(Spacing.m))
         
@@ -363,8 +414,8 @@ fun RecommendationResults(state: CropRecommendationState) {
         } else if (state.recommendations.isEmpty()) {
             EmptyStateView(
                 lottieRes = 0, // Placeholder
-                title = "No matches found",
-                subtitle = "Try adjusting your filters for better results."
+                title = stringResource(R.string.no_matches_found),
+                subtitle = stringResource(R.string.adjust_filters_subtitle)
             )
         } else {
             val topPick = state.recommendations.first()
@@ -382,14 +433,14 @@ fun RecommendationResults(state: CropRecommendationState) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        StatusPill(text = "Best Match", type = StatusType.SUCCESS)
+                        StatusPill(text = stringResource(R.string.best_match), type = StatusType.SUCCESS)
                         Spacer(Modifier.height(8.dp))
                         Text(topPick.name, style = TypographyTokens.DisplayM, color = Color.White)
-                        Text(topPick.type, style = TypographyTokens.BodyM, color = Color.White.copy(alpha = 0.8f))
+                        Text(translateType(topPick.type), style = TypographyTokens.BodyM, color = Color.White.copy(alpha = 0.8f))
                         Spacer(Modifier.height(Spacing.m))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(Icons.Default.TrendingUp, null, tint = Color.White, modifier = Modifier.size(16.dp))
-                            Text("High Yield Potential", style = TypographyTokens.Micro, color = Color.White)
+                            Text(stringResource(R.string.high_yield_potential), style = TypographyTokens.Micro, color = Color.White)
                         }
                     }
                     
@@ -431,7 +482,7 @@ fun RecommendationResults(state: CropRecommendationState) {
                                     Text(crop.name, style = TypographyTokens.HeadingS, color = Color.White)
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = crop.type,
+                                        text = translateType(crop.type),
                                         style = TypographyTokens.Micro,
                                         color = BrandAmber,
                                         modifier = Modifier
@@ -439,11 +490,11 @@ fun RecommendationResults(state: CropRecommendationState) {
                                             .padding(horizontal = 8.dp, vertical = 2.dp)
                                     )
                                 }
-                                Text("Matches your ${state.selectedSoilType} soil", style = TypographyTokens.Micro, color = SuccessGreen)
+                                Text(stringResource(R.string.optimal_conditions), style = TypographyTokens.Micro, color = SuccessGreen)
                                 Spacer(Modifier.height(4.dp))
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    StatusPill(text = crop.season, type = StatusType.INFO)
-                                    StatusPill(text = "${crop.matchScore}% Match", type = StatusType.SUCCESS)
+                                    StatusPill(text = translateSeason(crop.season), type = StatusType.INFO)
+                                    StatusPill(text = stringResource(R.string.match_score_percentage, crop.matchScore), type = StatusType.SUCCESS)
                                 }
                             }
                             Icon(Icons.Default.ChevronRight, null, tint = DarkTextSub)

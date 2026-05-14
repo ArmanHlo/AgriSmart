@@ -41,4 +41,88 @@
     <string name="community">Community</string>
     <string name="video_hub">Video Hub</string>
     <string name="irrigation">Irrigation</string>
+    <string name="search_placeholder">Search Mandis or Crops</string>
+    <string name="live_mandi_rates">Live Mandi Rates</string>
+    <string name="updated_5_mins_ago">Updated 5 mins ago</string>
+    <string name="market_pulse_header">Market Pulse</string>
+    <string name="live">LIVE</string>
+    <string name="price_trend_wheat">Price Trend (Wheat)</string>
+
+    <!-- Suggestion Chips -->
+    <string name="chip_wheat_prices">Wheat prices?</string>
+    <string name="chip_tomato_disease">Tomato disease</string>
+    <string name="chip_pesticide_help">Pesticide help</string>
+    <string name="chip_next_season">Next sowing season</string>
+    <string name="ask_anything">Ask anything about farming…</string>
+    <string name="online_ai_powered">Online • AI Powered</string>
+
+    <!-- Crop Advisor Screen -->
+    <string name="back">Back</string>
+    <string name="next">Next</string>
+    <string name="get_analysis">Get Analysis</string>
+    <string name="where_is_your_farm">Where is your farm?</string>
+    <string name="climate_vary_subtitle">Climate vary significantly by region.</string>
+    <string name="select_soil_type">Select Soil Type</string>
+    <string name="soil_type_subtitle">Critical factor for nutrient intake.</string>
+    <string name="sowing_season">Sowing Season</string>
+    <string name="sowing_season_subtitle">Match your timing with the weather.</string>
+    <string name="water_source">Water Source</string>
+    <string name="water_source_subtitle">Irrigation capacity defines yield.</string>
+    <string name="what_is_your_budget">What is your budget?</string>
+    <string name="budget_subtitle">Estimated cost per acre (in ₹).</string>
+    <string name="top_picks_for_your_farm">Top Picks for Your Farm</string>
+    <string name="optimal_crops_subtitle">Optimal crops based on your conditions</string>
+    <string name="no_matches_found">No matches found</string>
+    <string name="adjust_filters_subtitle">Try adjusting your filters for better results.</string>
+    <string name="best_match">Best Match</string>
+    <string name="high_yield_potential">High Yield Potential</string>
+    <string name="match_score_percentage">%1$d%% Match</string>
+
+    <!-- States -->
+    <string name="punjab">Punjab</string>
+    <string name="haryana">Haryana</string>
+    <string name="up">UP</string>
+    <string name="maharashtra">Maharashtra</string>
+    <string name="gujarat">Gujarat</string>
+    <string name="karnataka">Karnataka</string>
+    <string name="bihar">Bihar</string>
+    <string name="mp">MP</string>
+    <string name="rajasthan">Rajasthan</string>
+    <string name="west_bengal">West Bengal</string>
+    <string name="andhra_pradesh">Andhra Pradesh</string>
+    <string name="telangana">Telangana</string>
+    <string name="tamil_nadu">Tamil Nadu</string>
+    <string name="odisha">Odisha</string>
+    <string name="kerala">Kerala</string>
+    <string name="assam">Assam</string>
+    <string name="chhattisgarh">Chhattisgarh</string>
+    <string name="jharkhand">Jharkhand</string>
+    <string name="uttarakhand">Uttarakhand</string>
+    <string name="himachal_pradesh">Himachal Pradesh</string>
+    <string name="other">Other</string>
+
+    <!-- Soil Types -->
+    <string name="alluvial">Alluvial</string>
+    <string name="black">Black</string>
+    <string name="red">Red</string>
+    <string name="clay">Clay</string>
+    <string name="sandy">Sandy</string>
+    <string name="loamy">Loamy</string>
+
+    <!-- Seasons -->
+    <string name="kharif">Kharif (Monsoon)</string>
+    <string name="rabi">Rabi (Winter)</string>
+    <string name="zaid">Zaid (Summer)</string>
+
+    <!-- Water Sources -->
+    <string name="rainfed">Rainfed</string>
+    <string name="canal">Canal</string>
+    <string name="borewell">Borewell</string>
+    <string name="drip_irrigation">Drip Irrigation</string>
+    <string name="annual">Annual</string>
+    <string name="cereal">Cereal</string>
+    <string name="fruit">Fruit</string>
+    <string name="vegetable">Vegetable</string>
+    <string name="fiber">Fiber</string>
+    <string name="cash_crop">Cash Crop</string>
 </resources>

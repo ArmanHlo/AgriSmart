@@ -27,6 +27,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoping.agrismart.domain.model.MarketPrice
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.compose.ui.res.stringResource
+import com.shoping.agrismart.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MarketPriceScreen(
@@ -46,7 +49,7 @@ fun MarketPriceScreen(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.m),
-                    placeholder = { Text("Search Mandis or Crops", style = TypographyTokens.BodyM, color = DarkTextSub) },
+                    placeholder = { Text(stringResource(R.string.search_placeholder), style = TypographyTokens.BodyM, color = DarkTextSub) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = BrandGreenGlow) },
                     trailingIcon = { Icon(Icons.Default.FilterList, null, tint = DarkTextSub) },
                     shape = ShapePill,
@@ -66,7 +69,10 @@ fun MarketPriceScreen(
 
                 Spacer(Modifier.height(Spacing.m))
                 
-                SectionHeader(title = "Live Mandi Rates", subtitle = "Updated 5 mins ago")
+                SectionHeader(
+                    title = stringResource(R.string.live_mandi_rates), 
+                    subtitle = stringResource(R.string.updated_5_mins_ago)
+                )
 
                 if (state.isLoading) {
                     repeat(5) {
@@ -106,9 +112,9 @@ fun MarketHeader(onBack: () -> Unit) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = Color.White)
         }
         Spacer(Modifier.width(Spacing.m))
-        Text("Market Pulse", style = TypographyTokens.HeadingL, color = Color.White)
+        Text(stringResource(R.string.market_pulse_header), style = TypographyTokens.HeadingL, color = Color.White)
         Spacer(Modifier.weight(1f))
-        StatusPill(text = "LIVE", type = StatusType.SUCCESS)
+        StatusPill(text = stringResource(R.string.live), type = StatusType.SUCCESS)
     }
 }
 
@@ -121,7 +127,7 @@ fun MarketPriceChart() {
         // Simple Placeholder for Chart
         Box(modifier = Modifier.fillMaxSize().padding(Spacing.md)) {
             Column {
-                Text("Price Trend (Wheat)", style = TypographyTokens.Label, color = DarkTextSub)
+                Text(stringResource(R.string.price_trend_wheat), style = TypographyTokens.Label, color = DarkTextSub)
                 Text("₹2,250", style = TypographyTokens.HeadingL, color = BrandGreenGlow)
             }
             // Simulating a mini sparkline
