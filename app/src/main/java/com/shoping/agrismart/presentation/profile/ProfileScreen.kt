@@ -33,6 +33,9 @@ import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalConfiguration
 
+import androidx.compose.ui.res.stringResource
+import com.shoping.agrismart.R
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -61,7 +64,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile", color = Color.White) },
+                title = { Text(stringResource(R.string.profile), color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
@@ -113,25 +116,25 @@ fun ProfileScreen(
             
             Spacer(Modifier.height(Spacing.m))
             
-            Text(currentUser?.name ?: "Farmer", style = TypographyTokens.HeadingM, color = Color.White)
-            Text(currentUser?.location ?: "Location not set", style = TypographyTokens.BodyM, color = DarkTextSub)
+            Text(currentUser?.name ?: stringResource(R.string.na), style = TypographyTokens.HeadingM, color = Color.White)
+            Text(currentUser?.location ?: stringResource(R.string.not_set), style = TypographyTokens.BodyM, color = DarkTextSub)
             
             Spacer(Modifier.height(Spacing.xl))
             
-            ProfileItem("Email", currentUser?.email ?: "N/A")
+            ProfileItem(stringResource(R.string.email), currentUser?.email ?: stringResource(R.string.na))
             
             val farmSizeDisplay = if (!currentUser?.farmSize.isNullOrBlank()) {
-                "${currentUser?.farmSize} Acre"
-            } else "N/A"
-            ProfileItem("Farm Size", farmSizeDisplay)
+                "${currentUser?.farmSize} ${stringResource(R.string.acre)}"
+            } else stringResource(R.string.na)
+            ProfileItem(stringResource(R.string.farm_size), farmSizeDisplay)
             
-            ProfileItem("Primary Crop", currentUser?.primaryCrop ?: "N/A")
+            ProfileItem(stringResource(R.string.primary_crop), currentUser?.primaryCrop ?: stringResource(R.string.na))
 
             Spacer(Modifier.height(Spacing.m))
 
             // Language Selection
             Text(
-                "App Language",
+                stringResource(R.string.app_language),
                 modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.s),
                 style = TypographyTokens.Label,
                 color = DarkTextSub
@@ -145,6 +148,7 @@ fun ProfileScreen(
                     label = "English",
                     selected = currentLanguage == "en",
                     onToggle = { 
+                        Toast.makeText(context, context.getString(R.string.switching_to_english), Toast.LENGTH_SHORT).show()
                         val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("en")
                         AppCompatDelegate.setApplicationLocales(appLocale)
                     },
@@ -154,7 +158,7 @@ fun ProfileScreen(
                     label = "हिन्दी",
                     selected = currentLanguage == "hi",
                     onToggle = { 
-                        Toast.makeText(context, "Switching to Hindi...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.switching_to_hindi), Toast.LENGTH_SHORT).show()
                         val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("hi")
                         AppCompatDelegate.setApplicationLocales(appLocale)
                     },
@@ -170,7 +174,7 @@ fun ProfileScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.2f)),
                 shape = ShapeM
             ) {
-                Text("Logout", color = Color.Red)
+                Text(stringResource(R.string.logout), color = Color.Red)
             }
         }
     }

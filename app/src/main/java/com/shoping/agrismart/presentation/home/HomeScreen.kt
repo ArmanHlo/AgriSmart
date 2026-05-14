@@ -30,6 +30,9 @@ import com.shoping.agrismart.domain.model.User
 import com.shoping.agrismart.presentation.navigation.Screen
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.compose.ui.res.stringResource
+import com.shoping.agrismart.R
+
 @Composable
 fun HomeScreen(
     onNavigate: (String) -> Unit,
@@ -52,18 +55,31 @@ fun HomeScreen(
                 WeatherMegaCard(state.weather)
                 
                 Spacer(Modifier.height(Spacing.xl))
-                SectionHeader(title = "Quick Actions", subtitle = "Tools for your farm", titleColor = Color.White)
+                SectionHeader(
+                    title = stringResource(R.string.quick_actions), 
+                    subtitle = stringResource(R.string.tools_for_your_farm), 
+                    titleColor = Color.White
+                )
                 QuickActionsGrid(onNavigate)
                 
                 Spacer(Modifier.height(Spacing.xl))
-                SectionHeader(title = "AI Advisor", actionText = "See All", onAction = {}, titleColor = Color.White)
+                SectionHeader(
+                    title = stringResource(R.string.ai_advisor), 
+                    actionText = stringResource(R.string.see_all), 
+                    onAction = {}, 
+                    titleColor = Color.White
+                )
                 CropAdvisorPreview()
                 
                 Spacer(Modifier.height(Spacing.xl))
                 MarketPulseCard()
                 
                 Spacer(Modifier.height(Spacing.xl))
-                SectionHeader(title = "Farm Health", subtitle = "Based on recent data", titleColor = Color.White)
+                SectionHeader(
+                    title = stringResource(R.string.farm_health), 
+                    subtitle = stringResource(R.string.based_on_recent_data), 
+                    titleColor = Color.White
+                )
                 FarmHealthCard()
                 
                 Spacer(Modifier.height(Spacing.xxl))
@@ -109,17 +125,17 @@ fun HomeHeader(scrollState: ScrollState, onNavigate: (String) -> Unit, user: Use
             ) {
                 Column {
                     Text(
-                        text = "Good Morning 🌱",
+                        text = stringResource(R.string.good_morning),
                         style = TypographyTokens.BodyM,
                         color = DarkTextSub
                     )
                     Text(
-                        text = if (user?.name.isNullOrBlank()) "Farmer" else user?.name!!,
+                        text = if (user?.name.isNullOrBlank()) stringResource(R.string.farmer) else user?.name!!,
                         style = TypographyTokens.DisplayM,
                         color = BrandGreenGlow
                     )
                     Text(
-                        text = "${if (user?.location.isNullOrBlank()) "Location not set" else user?.location} • ${if (user?.farmSize.isNullOrBlank()) "0" else user?.farmSize} acres",
+                        text = "${if (user?.location.isNullOrBlank()) stringResource(R.string.location_not_set) else user?.location} • ${stringResource(R.string.acres, if (user?.farmSize.isNullOrBlank()) "0" else user?.farmSize!!)}",
                         style = TypographyTokens.BodyS,
                         color = DarkTextSub
                     )
@@ -169,8 +185,8 @@ fun WeatherMegaCard(weather: com.shoping.agrismart.data.remote.WeatherResponse?)
             ) {
                 Column {
                     Text("${weather?.main?.temp?.toInt() ?: "--"}°C", style = TypographyTokens.DisplayL, color = Color.White)
-                    Text("Feels like ${weather?.main?.feels_like?.toInt() ?: "--"}°C", style = TypographyTokens.BodyS, color = Color.White.copy(0.7f))
-                    Text("${weather?.weather?.firstOrNull()?.description ?: "Updating..."} · ${weather?.name ?: "Your Farm"}", style = TypographyTokens.BodyM, color = Color.White)
+                    Text(stringResource(R.string.feels_like, weather?.main?.feels_like?.toInt() ?: 0), style = TypographyTokens.BodyS, color = Color.White.copy(0.7f))
+                    Text("${weather?.weather?.firstOrNull()?.description ?: stringResource(R.string.updating)} · ${weather?.name ?: stringResource(R.string.your_farm)}", style = TypographyTokens.BodyM, color = Color.White)
                 }
                 
                 Icon(
@@ -192,7 +208,7 @@ fun WeatherMegaCard(weather: com.shoping.agrismart.data.remote.WeatherResponse?)
             Spacer(Modifier.height(Spacing.md))
             
             StatusPill(
-                text = if ((weather?.main?.humidity ?: 0) > 70) "⚠️ High humidity — fungal risk today" else "✅ Optimal conditions for farm activities",
+                text = if ((weather?.main?.humidity ?: 0) > 70) stringResource(R.string.high_humidity_risk) else stringResource(R.string.optimal_conditions),
                 type = if ((weather?.main?.humidity ?: 0) > 70) StatusType.WARNING else StatusType.SUCCESS
             )
         }
@@ -214,15 +230,15 @@ fun WeatherMetricPill(text: String) {
 @Composable
 fun QuickActionsGrid(onNavigate: (String) -> Unit) {
     val actions = listOf(
-        HomeAction("Crop AI", Icons.Default.Agriculture, GradientGreen, Screen.CropAdvisor.route),
-        HomeAction("Scan", Icons.Default.CameraAlt, Brush.linearGradient(listOf(Color(0xFF006064), Color(0xFF00BCD4))), Screen.DiseaseScanner.route),
-        HomeAction("ChatBot", Icons.Default.Chat, Brush.linearGradient(listOf(Color(0xFF4A148C), Color(0xFFAB47BC))), Screen.KrishiBot.route),
-        HomeAction("Mandi", Icons.Default.Storefront, GradientAmber, Screen.MarketPrices.route),
-        HomeAction("Weather", Icons.Default.Cloud, GradientSky, Screen.Weather.route),
-        HomeAction("Soil", Icons.Default.Science, GradientEarth, Screen.SoilHealth.route),
-        HomeAction("Schemes", Icons.Default.Description, Brush.linearGradient(listOf(Color(0xFF1A231E), Color(0xFF5C6BC0))), Screen.GovtSchemes.route),
-        HomeAction("Journal", Icons.Default.Book, Brush.linearGradient(listOf(Color(0xFF33691E), Color(0xFF8BC34A))), Screen.FarmJournal.route),
-        HomeAction("Shop", Icons.Default.ShoppingCart, Brush.linearGradient(listOf(Color(0xFF880E4F), Color(0xFFE91E63))), Screen.MarketPrices.route)
+        HomeAction(stringResource(R.string.crop_advisor), Icons.Default.Agriculture, GradientGreen, Screen.CropAdvisor.route),
+        HomeAction(stringResource(R.string.disease_scan), Icons.Default.CameraAlt, Brush.linearGradient(listOf(Color(0xFF006064), Color(0xFF00BCD4))), Screen.DiseaseScanner.route),
+        HomeAction(stringResource(R.string.krishibot), Icons.Default.Chat, Brush.linearGradient(listOf(Color(0xFF4A148C), Color(0xFFAB47BC))), Screen.KrishiBot.route),
+        HomeAction(stringResource(R.string.market_price), Icons.Default.Storefront, GradientAmber, Screen.MarketPrices.route),
+        HomeAction(stringResource(R.string.weather), Icons.Default.Cloud, GradientSky, Screen.Weather.route),
+        HomeAction(stringResource(R.string.soil_health), Icons.Default.Science, GradientEarth, Screen.SoilHealth.route),
+        HomeAction(stringResource(R.string.govt_schemes), Icons.Default.Description, Brush.linearGradient(listOf(Color(0xFF1A231E), Color(0xFF5C6BC0))), Screen.GovtSchemes.route),
+        HomeAction(stringResource(R.string.farm_journal), Icons.Default.Book, Brush.linearGradient(listOf(Color(0xFF33691E), Color(0xFF8BC34A))), Screen.FarmJournal.route),
+        HomeAction(stringResource(R.string.market), Icons.Default.ShoppingCart, Brush.linearGradient(listOf(Color(0xFF880E4F), Color(0xFFE91E63))), Screen.MarketPrices.route)
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
@@ -296,7 +312,7 @@ fun CropAdvisorPreview() {
 fun MarketPulseCard() {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("📈 Market Pulse", style = TypographyTokens.HeadingS, color = Color.White)
+            Text(stringResource(R.string.market_pulse), style = TypographyTokens.HeadingS, color = Color.White)
             Spacer(Modifier.width(8.dp))
             Box(modifier = Modifier.size(8.dp).background(SuccessGreen, CircleShape)) // Pulse
         }
@@ -365,8 +381,8 @@ fun KrishiBottomBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NavItem(Icons.Default.Home, "Home", currentRoute == Screen.Home.route) { onNavigate(Screen.Home.route) }
-            NavItem(Icons.Default.Explore, "Explore", currentRoute == Screen.Community.route) { onNavigate(Screen.Community.route) }
+            NavItem(Icons.Default.Home, stringResource(R.string.home), currentRoute == Screen.Home.route) { onNavigate(Screen.Home.route) }
+            NavItem(Icons.Default.Explore, stringResource(R.string.explore), currentRoute == Screen.Community.route) { onNavigate(Screen.Community.route) }
             
             FloatingActionButton(
                 onClick = { onNavigate(Screen.DiseaseScanner.route) },
@@ -384,8 +400,8 @@ fun KrishiBottomBar(
                 }
             }
             
-            NavItem(Icons.Default.BarChart, "Market", currentRoute == Screen.MarketPrices.route) { onNavigate(Screen.MarketPrices.route) }
-            NavItem(Icons.Default.Person, "Profile", currentRoute == Screen.Profile.route) { onNavigate(Screen.Profile.route) }
+            NavItem(Icons.Default.BarChart, stringResource(R.string.market), currentRoute == Screen.MarketPrices.route) { onNavigate(Screen.MarketPrices.route) }
+            NavItem(Icons.Default.Person, stringResource(R.string.profile), currentRoute == Screen.Profile.route) { onNavigate(Screen.Profile.route) }
         }
     }
 }
