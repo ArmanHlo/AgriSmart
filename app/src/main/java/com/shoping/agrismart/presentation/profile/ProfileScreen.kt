@@ -27,6 +27,9 @@ import coil.compose.AsyncImage
 import com.shoping.agrismart.presentation.auth.AuthViewModel
 import com.shoping.agrismart.presentation.theme.*
 
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -36,6 +39,10 @@ fun ProfileScreen(
     val currentUser by viewModel.currentUser.collectAsState()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    
+    val currentLanguage = remember {
+        AppCompatDelegate.getApplicationLocales().get(0)?.language ?: "en"
+    }
     
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -117,6 +124,40 @@ fun ProfileScreen(
             ProfileItem("Farm Size", farmSizeDisplay)
             
             ProfileItem("Primary Crop", currentUser?.primaryCrop ?: "N/A")
+
+            Spacer(Modifier.height(Spacing.m))
+
+            // Language Selection
+            Text(
+                "App Language",
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Spacing.s),
+                style = TypographyTokens.Label,
+                color = DarkTextSub
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.s),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.m)
+            ) {
+                PremiumChip(
+                    label = "English",
+                    selected = currentLanguage == "en",
+                    onToggle = { 
+                        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("en")
+                        AppCompatDelegate.setApplicationLocales(appLocale)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                PremiumChip(
+                    label = "हिन्दी",
+                    selected = currentLanguage == "hi",
+                    onToggle = { 
+                        val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("hi")
+                        AppCompatDelegate.setApplicationLocales(appLocale)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             
             Spacer(Modifier.weight(1f))
             
