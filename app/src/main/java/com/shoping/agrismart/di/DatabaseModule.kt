@@ -29,6 +29,7 @@ object DatabaseModule {
             AgriDatabase::class.java,
             "agri_database"
         )
+        .fallbackToDestructiveMigration()
         .addCallback(AgriDatabase.CALLBACK)
         .build()
     }

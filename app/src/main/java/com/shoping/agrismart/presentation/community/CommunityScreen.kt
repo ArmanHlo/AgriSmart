@@ -263,6 +263,7 @@ fun CommunityHeader(onBack: () -> Unit) {
 @Composable
 fun PremiumPostCard(post: Post, onLike: () -> Unit, onCommentClick: () -> Unit) {
     val dateStr = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()).format(post.timestamp)
+    val context = androidx.compose.ui.platform.LocalContext.current
     
     KrishiCard(
         modifier = Modifier.fillMaxWidth(),
@@ -330,12 +331,12 @@ fun PremiumPostCard(post: Post, onLike: () -> Unit, onCommentClick: () -> Unit) 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onLike) {
                         Icon(
-                            if (post.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            if (post.liked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             null,
-                            tint = if (post.isLiked) DangerRed else DarkTextSub
+                            tint = if (post.liked) DangerRed else DarkTextSub
                         )
                     }
-                    Text("${post.likes}", style = TypographyTokens.BodyS, color = if (post.isLiked) DangerRed else DarkTextSub)
+                    Text("${post.likes}", style = TypographyTokens.BodyS, color = if (post.liked) DangerRed else DarkTextSub)
                     
                     Spacer(Modifier.width(Spacing.m))
                     
@@ -349,7 +350,15 @@ fun PremiumPostCard(post: Post, onLike: () -> Unit, onCommentClick: () -> Unit) 
                     }
                 }
                 
-                IconButton(onClick = { }) {
+                IconButton(onClick = {
+                    val sendIntent = android.content.Intent().apply {
+                        action = android.content.Intent.ACTION_SEND
+                        putExtra(android.content.Intent.EXTRA_TEXT, "${post.authorName} posted on AgriSmart: ${post.content}")
+                        type = "text/plain"
+                    }
+                    val shareIntent = android.content.Intent.createChooser(sendIntent, null)
+                    context.startActivity(shareIntent)
+                }) {
                     Icon(Icons.Default.Share, null, tint = DarkTextSub)
                 }
             }

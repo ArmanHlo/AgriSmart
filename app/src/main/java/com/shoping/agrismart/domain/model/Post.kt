@@ -9,7 +9,7 @@ data class Post(
     val imageUrl: String? = null,
     val timestamp: Date = Date(),
     val likes: Int = 0,
-    val isLiked: Boolean = false,
+    val liked: Boolean = false,
     val commentCount: Int = 0,
     val topic: String = "General"
 )

@@ -67,9 +67,9 @@ class CommunityRepositoryImpl @Inject constructor(
         
         if (index != -1) {
             val post = current[index]
-            val wasLiked = post.isLiked
+            val wasLiked = post.liked
             val newLikes = if (wasLiked) post.likes - 1 else post.likes + 1
-            current[index] = post.copy(likes = newLikes.coerceAtLeast(0), isLiked = !wasLiked)
+            current[index] = post.copy(likes = newLikes.coerceAtLeast(0), liked = !wasLiked)
             mockPosts.value = current
         }
 
@@ -78,9 +78,10 @@ class CommunityRepositoryImpl @Inject constructor(
             firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(docRef)
                 val currentLikes = snapshot.getLong("likes") ?: 0
-                val isCurrentlyLiked = index != -1 && current[index].isLiked
+                val isCurrentlyLiked = index != -1 && current[index].liked
                 val finalLikes = if (isCurrentlyLiked) currentLikes + 1 else (currentLikes - 1).coerceAtLeast(0)
                 transaction.update(docRef, "likes", finalLikes)
+                transaction.update(docRef, "liked", isCurrentlyLiked)
             }.await()
         } catch (e: Exception) {
             e.printStackTrace()
