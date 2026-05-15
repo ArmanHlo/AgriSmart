@@ -45,6 +45,17 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import com.shoping.agrismart.presentation.navigation.Screen
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.filled.PushPin
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -55,6 +66,8 @@ fun ChatScreen(
     val context = LocalContext.current
     var inputText = remember { mutableStateOf("") }
     val listState = rememberLazyListState()
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    var selectedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     // TTS Engine
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
@@ -70,6 +83,21 @@ fun ChatScreen(
         }
     }
 
+    // Image Picker
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedImageUri = uri
+        uri?.let {
+            selectedBitmap = if (Build.VERSION.SDK_INT < 28) {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, it)
+                ImageDecoder.decodeBitmap(source)
+            }
+        }
+    }
+
     // STT Launcher
     val sttLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -78,8 +106,10 @@ fun ChatScreen(
             val spokenText = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
             spokenText?.let {
                 inputText.value = it
-                viewModel.onSendMessage(it)
+                viewModel.onSendMessage(it, selectedBitmap)
                 inputText.value = ""
+                selectedBitmap = null
+                selectedImageUri = null
             }
         }
     }
@@ -114,7 +144,9 @@ fun ChatScreen(
                     contentPadding = PaddingValues(top = Spacing.md, bottom = 120.dp)
                 ) {
                     items(state.messages) { message ->
-                        ChatBubble(message)
+                        ChatBubble(message) {
+                            viewModel.onSendMessage("Save this message: ${message.content.take(50)}...")
+                        }
                     }
                     if (state.isLoading) {
                         item { TypingIndicator() }
@@ -135,17 +167,38 @@ fun ChatScreen(
                 .navigationBarsPadding()
                 .padding(Spacing.md)
         ) {
+            // Image Preview
+            selectedBitmap?.let {
+                Box(modifier = Modifier.size(80.dp).padding(bottom = 8.dp).clip(ShapeM)) {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    IconButton(
+                        onClick = { selectedBitmap = null; selectedImageUri = null },
+                        modifier = Modifier.align(Alignment.TopEnd).size(24.dp).background(Color.Black.copy(0.5f), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Add, null, tint = Color.White, modifier = Modifier.size(16.dp)) // Close icon placeholder
+                    }
+                }
+            }
+
             SuggestionChips { inputText.value = it }
             Spacer(Modifier.height(Spacing.s))
             ChatInputBar(
                 text = inputText.value,
                 onTextChange = { inputText.value = it },
                 onSend = {
-                    if (inputText.value.isNotBlank()) {
-                        viewModel.onSendMessage(inputText.value)
+                    if (inputText.value.isNotBlank() || selectedBitmap != null) {
+                        viewModel.onSendMessage(inputText.value, selectedBitmap)
                         inputText.value = ""
+                        selectedBitmap = null
+                        selectedImageUri = null
                     }
                 },
+                onAddClick = { imagePicker.launch("image/*") },
                 onVoiceClick = {
                     val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                         putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -197,7 +250,7 @@ fun ChatHeader(onBack: () -> Unit) {
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+fun ChatBubble(message: ChatMessage, onSave: () -> Unit = {}) {
     val isUser = message.role == MessageRole.USER
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     
@@ -222,12 +275,19 @@ fun ChatBubble(message: ChatMessage) {
                 ),
                 border = if (isUser) null else BorderStroke(1.dp, DarkBorder)
             ) {
-                Text(
-                    text = message.content,
-                    modifier = Modifier.padding(14.dp),
-                    style = TypographyTokens.BodyL,
-                    color = Color.White
-                )
+                Column {
+                    Text(
+                        text = message.content,
+                        modifier = Modifier.padding(14.dp),
+                        style = TypographyTokens.BodyL,
+                        color = Color.White
+                    )
+                    if (!isUser) {
+                        IconButton(onClick = onSave, modifier = Modifier.align(Alignment.End).size(32.dp).padding(4.dp)) {
+                            Icon(Icons.Default.PushPin, "Save", tint = BrandGreenGlow, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                }
             }
             Text(
                 timeFormat.format(message.timestamp),
@@ -322,6 +382,7 @@ fun ChatInputBar(
     text: String,
     onTextChange: (String) -> Unit,
     onSend: () -> Unit,
+    onAddClick: () -> Unit,
     onVoiceClick: () -> Unit,
     isLoading: Boolean
 ) {
@@ -334,7 +395,7 @@ fun ChatInputBar(
             modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.s),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {}) {
+            IconButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, null, tint = DarkTextSub)
             }
             
@@ -355,7 +416,7 @@ fun ChatInputBar(
             )
 
             AnimatedVisibility(
-                visible = text.isNotBlank() && !isLoading,
+                visible = (text.isNotBlank() ) && !isLoading, // Simple send if text
                 enter = scaleIn() + fadeIn(),
                 exit = scaleOut() + fadeOut()
             ) {

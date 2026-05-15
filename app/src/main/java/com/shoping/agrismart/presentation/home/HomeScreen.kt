@@ -56,6 +56,18 @@ fun HomeScreen(
                 WeatherMegaCard(state.weather)
                 
                 Spacer(Modifier.height(Spacing.xl))
+                ForecastSection(state.weather?.forecast ?: emptyList())
+
+                Spacer(Modifier.height(Spacing.xl))
+                SoilIntelligenceCard(state.weather)
+
+                Spacer(Modifier.height(Spacing.xl))
+                WeatherTrendsCard()
+
+                Spacer(Modifier.height(Spacing.xl))
+                FarmingCalendarCard(state.weather?.forecast ?: emptyList())
+
+                Spacer(Modifier.height(Spacing.xl))
                 SectionHeader(
                     title = stringResource(R.string.quick_actions), 
                     subtitle = stringResource(R.string.tools_for_your_farm), 
@@ -202,16 +214,29 @@ fun WeatherMegaCard(weather: com.shoping.agrismart.data.remote.WeatherResponse?)
             
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 WeatherMetricPill("💧 ${weather?.main?.humidity ?: "--"}%")
-                WeatherMetricPill("🌬 12km/h")
-                WeatherMetricPill("☀️ UV 6")
+                WeatherMetricPill("🌬 ${weather?.wind?.speed ?: "--"}km/h")
+                WeatherMetricPill("☀️ UV ${weather?.uvIndex?.toInt() ?: "--"}")
             }
             
             Spacer(Modifier.height(Spacing.md))
             
             StatusPill(
-                text = if ((weather?.main?.humidity ?: 0) > 70) stringResource(R.string.high_humidity_risk) else stringResource(R.string.optimal_conditions),
-                type = if ((weather?.main?.humidity ?: 0) > 70) StatusType.WARNING else StatusType.SUCCESS
+                text = weather?.advisory?.title ?: stringResource(R.string.optimal_conditions),
+                type = when(weather?.advisory?.riskLevel) {
+                    "DANGER" -> StatusType.ERROR
+                    "WARNING" -> StatusType.WARNING
+                    else -> StatusType.SUCCESS
+                }
             )
+            
+            if (weather?.advisory != null) {
+                Text(
+                    text = weather.advisory.description,
+                    style = TypographyTokens.Micro,
+                    color = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
         }
     }
 }
@@ -233,6 +258,7 @@ fun QuickActionsGrid(onNavigate: (String) -> Unit) {
     val actions = listOf(
         HomeAction(stringResource(R.string.weather), Icons.Default.Cloud, GradientSky, Screen.Weather.route),
         HomeAction(stringResource(R.string.crop_advisor), Icons.Default.Agriculture, GradientGreen, Screen.CropAdvisor.route),
+        HomeAction(stringResource(R.string.farming_calendar), Icons.Default.CalendarToday, Brush.linearGradient(listOf(Color(0xFFFF9800), Color(0xFFFFB74D))), Screen.FarmingCalendar.route),
         HomeAction(stringResource(R.string.disease_scan), Icons.Default.CameraAlt, Brush.linearGradient(listOf(Color(0xFF006064), Color(0xFF00BCD4))), Screen.DiseaseScanner.route),
         HomeAction(stringResource(R.string.krishibot), Icons.Default.Chat, Brush.linearGradient(listOf(Color(0xFF4A148C), Color(0xFFAB47BC))), Screen.KrishiBot.route),
         HomeAction(stringResource(R.string.market_price), Icons.AutoMirrored.Filled.TrendingUp, GradientAmber, Screen.MarketPrices.route),
@@ -240,6 +266,7 @@ fun QuickActionsGrid(onNavigate: (String) -> Unit) {
         HomeAction(stringResource(R.string.farm_journal), Icons.Default.Book, Brush.linearGradient(listOf(Color(0xFF33691E), Color(0xFF8BC34A))), Screen.FarmJournal.route),
         HomeAction(stringResource(R.string.irrigation), Icons.Default.WaterDrop, Brush.linearGradient(listOf(Color(0xFF0277BD), Color(0xFF4FC3F7))), Screen.Irrigation.route),
         HomeAction(stringResource(R.string.pest_calendar), Icons.Default.BugReport, Brush.linearGradient(listOf(Color(0xFFE65100), Color(0xFFFFB74D))), Screen.PestCalendar.route),
+        HomeAction(stringResource(R.string.my_notes), Icons.Default.Book, Brush.linearGradient(listOf(Color(0xFF33691E), Color(0xFF8BC34A))), Screen.MyNotes.route),
         HomeAction(stringResource(R.string.community), Icons.Default.Groups, Brush.linearGradient(listOf(Color(0xFF4527A0), Color(0xFF7E57C2))), Screen.Community.route)
     )
 
@@ -455,6 +482,145 @@ fun SectionHeader(
 }
 
 fun Color.toBrush() = Brush.linearGradient(listOf(this, this))
+
+@Composable
+fun ForecastSection(forecast: List<com.shoping.agrismart.data.remote.ForecastData>) {
+    Column {
+        SectionHeader(
+            title = stringResource(R.string.seven_day_forecast),
+            subtitle = stringResource(R.string.hourly_breakdown_available),
+            titleColor = Color.White
+        )
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+            contentPadding = PaddingValues(end = Spacing.md)
+        ) {
+            items(forecast) { day ->
+                KrishiCard(
+                    modifier = Modifier.width(100.dp),
+                    gradient = DarkSurface2.toBrush()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(Spacing.m),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(day.date.takeLast(5), style = TypographyTokens.Label, color = DarkTextSub)
+                        Spacer(Modifier.height(Spacing.s))
+                        Icon(Icons.Default.Cloud, null, Modifier.size(30.dp), Color.White)
+                        Spacer(Modifier.height(Spacing.s))
+                        Text("${day.tempMax.toInt()}°", style = TypographyTokens.HeadingS, color = Color.White)
+                        Text("${day.tempMin.toInt()}°", style = TypographyTokens.BodyS, color = DarkTextSub)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SoilIntelligenceCard(weather: com.shoping.agrismart.data.remote.WeatherResponse?) {
+    KrishiCard(
+        modifier = Modifier.fillMaxWidth(),
+        gradient = Brush.linearGradient(listOf(Color(0xFF2E7D32), Color(0xFF81C784))),
+        glowColor = Color(0x334CAF50)
+    ) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            Text(stringResource(R.string.soil_intelligence), style = TypographyTokens.HeadingM, color = Color.White)
+            Text(stringResource(R.string.real_time_soil_metrics), style = TypographyTokens.BodyS, color = Color.White.copy(0.7f))
+            
+            Spacer(Modifier.height(Spacing.md))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SoilMetricPill(stringResource(R.string.moisture), "${weather?.soil?.moisture ?: "--"} m³/m³")
+                SoilMetricPill(stringResource(R.string.soil_temp), "${weather?.soil?.temperature ?: "--"}°C")
+            }
+            
+            Spacer(Modifier.height(Spacing.md))
+            
+            Text(
+                text = weather?.main?.evapotranspiration?.let {
+                    stringResource(R.string.evapotranspiration_value, it)
+                } ?: "Evapotranspiration: -- mm",
+                style = TypographyTokens.Micro,
+                color = Color.White
+            )
+        }
+    }
+}
+
+@Composable
+fun SoilMetricPill(label: String, value: String) {
+    Column {
+        Text(label, style = TypographyTokens.Micro, color = Color.White.copy(0.7f))
+        Text(value, style = TypographyTokens.HeadingS, color = Color.White)
+    }
+}
+
+@Composable
+fun WeatherTrendsCard() {
+    KrishiCard(
+        modifier = Modifier.fillMaxWidth(),
+        gradient = DarkSurface.toBrush()
+    ) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            SectionHeader(
+                title = stringResource(R.string.historical_trends),
+                subtitle = stringResource(R.string.thirty_day_weather_history),
+                titleColor = Color.White
+            )
+            
+            // Placeholder for Chart
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .background(Color.Black.copy(0.2f), ShapeM),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Chart Placeholder (MPAndroidChart)",
+                    style = TypographyTokens.BodyS,
+                    color = DarkTextSub
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FarmingCalendarCard(forecast: List<com.shoping.agrismart.data.remote.ForecastData>) {
+    KrishiCard(
+        modifier = Modifier.fillMaxWidth(),
+        gradient = Brush.linearGradient(listOf(Color(0xFF5D4037), Color(0xFF8D6E63)))
+    ) {
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            Text(stringResource(R.string.farming_calendar), style = TypographyTokens.HeadingM, color = Color.White)
+            Text(stringResource(R.string.ai_generated_weekly_schedule), style = TypographyTokens.BodyS, color = Color.White.copy(0.7f))
+            
+            Spacer(Modifier.height(Spacing.m))
+            
+            forecast.take(3).forEach { day ->
+                val activity = when {
+                    day.description.contains("Rain", true) -> "Rest (Rain expected)"
+                    day.tempMax > 30 -> "Irrigation recommended"
+                    else -> "Fertilizer / Spray window"
+                }
+                
+                Row(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(modifier = Modifier.size(8.dp).background(BrandAmber, CircleShape))
+                    Spacer(Modifier.width(8.dp))
+                    Text("${day.date.takeLast(5)}: $activity", style = TypographyTokens.BodyM, color = Color.White)
+                }
+            }
+        }
+    }
+}
 
 data class HomeAction(
     val label: String,

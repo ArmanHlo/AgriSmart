@@ -139,4 +139,18 @@
     <string name="prev_pheromones">फेरोमोन ट्रैप (Pheromone traps)</string>
     <string name="prev_sticky_traps">पीले चिपचिपे ट्रैप</string>
     <string name="prev_chlorpyrifos">क्लोरपायरीफॉस का छिड़काव</string>
+
+    <!-- Weather Enhanced Strings -->
+    <string name="seven_day_forecast">7-दिन का पूर्वानुमान</string>
+    <string name="hourly_breakdown_available">प्रति घंटा विवरण उपलब्ध</string>
+    <string name="soil_intelligence">मिट्टी की जानकारी</string>
+    <string name="real_time_soil_metrics">रीअल-टाइम मिट्टी मेट्रिक्स (0–7 सेमी गहराई)</string>
+    <string name="moisture">नमी</string>
+    <string name="soil_temp">मिट्टी का तापमान</string>
+    <string name="evapotranspiration_value">वाष्पीकरण (Evapotranspiration): %1$.2f मिमी</string>
+    <string name="farming_calendar">कृषि कैलेंडर</string>
+    <string name="historical_trends">ऐतिहासिक रुझान</string>
+    <string name="thirty_day_weather_history">30-दिन का मौसम इतिहास</string>
+    <string name="ai_generated_weekly_schedule">AI द्वारा तैयार साप्ताहिक कार्यक्रम</string>
+    <string name="my_notes">मेरे नोट्स</string>
 </resources>

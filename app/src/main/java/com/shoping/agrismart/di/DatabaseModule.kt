@@ -4,7 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import com.shoping.agrismart.data.local.AgriDatabase
 import com.shoping.agrismart.data.local.dao.CropDao
+import com.shoping.agrismart.data.local.dao.FAQDao
 import com.shoping.agrismart.data.local.dao.FarmActivityDao
+import com.shoping.agrismart.data.local.dao.NoteDao
+import com.shoping.agrismart.data.local.dao.WeatherDao
+import com.shoping.agrismart.data.repository.NoteRepositoryImpl
+import com.shoping.agrismart.domain.repository.NoteRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,7 +28,9 @@ object DatabaseModule {
             context,
             AgriDatabase::class.java,
             "agri_database"
-        ).build()
+        )
+        .addCallback(AgriDatabase.CALLBACK)
+        .build()
     }
 
     @Provides
@@ -34,5 +41,25 @@ object DatabaseModule {
     @Provides
     fun provideFarmActivityDao(database: AgriDatabase): FarmActivityDao {
         return database.farmActivityDao
+    }
+
+    @Provides
+    fun provideWeatherDao(database: AgriDatabase): WeatherDao {
+        return database.weatherDao
+    }
+
+    @Provides
+    fun provideFAQDao(database: AgriDatabase): FAQDao {
+        return database.faqDao
+    }
+
+    @Provides
+    fun provideNoteDao(database: AgriDatabase): NoteDao {
+        return database.noteDao
+    }
+
+    @Provides
+    fun provideNoteRepository(noteDao: NoteDao): NoteRepository {
+        return NoteRepositoryImpl(noteDao)
     }
 }

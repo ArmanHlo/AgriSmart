@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
-    @Query("SELECT * FROM weather LIMIT 1")
+    @Query("SELECT * FROM weather_cache LIMIT 1")
     fun getCachedWeather(): Flow<WeatherEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun cacheWeather(weather: WeatherEntity)
 
-    @Query("DELETE FROM weather")
+    @Query("DELETE FROM weather_cache")
     suspend fun clearCache()
 }

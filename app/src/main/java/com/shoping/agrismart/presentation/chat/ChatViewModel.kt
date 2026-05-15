@@ -1,5 +1,6 @@
 package com.shoping.agrismart.presentation.chat
 
+import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shoping.agrismart.domain.model.ChatMessage
@@ -19,8 +20,8 @@ class ChatViewModel @Inject constructor(
     private val _state = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = _state.asStateFlow()
 
-    fun onSendMessage(content: String) {
-        if (content.isBlank()) return
+    fun onSendMessage(content: String, image: Bitmap? = null) {
+        if (content.isBlank() && image == null) return
 
         val userMessage = ChatMessage(
             id = UUID.randomUUID().toString(),
@@ -40,8 +41,8 @@ class ChatViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            // Pass previousHistory instead of the updated list
-            repository.sendMessage(content, previousHistory)
+            // Pass previousHistory and image
+            repository.sendMessage(content, previousHistory, image)
                 .catch { e ->
                     _state.update { 
                         it.copy(

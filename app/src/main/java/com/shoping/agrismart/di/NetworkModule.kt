@@ -1,5 +1,6 @@
 package com.shoping.agrismart.di
 
+import com.shoping.agrismart.data.local.dao.WeatherDao
 import com.shoping.agrismart.data.remote.MarketApiService
 import com.shoping.agrismart.data.remote.SoilApiService
 import com.shoping.agrismart.data.remote.WeatherApiService
@@ -74,8 +75,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideWeatherRepository(apiService: WeatherApiService): WeatherRepository {
-        return WeatherRepositoryImpl(apiService)
+    fun provideWeatherRepository(
+        apiService: WeatherApiService,
+        weatherDao: WeatherDao
+    ): WeatherRepository {
+        return WeatherRepositoryImpl(apiService, weatherDao)
     }
 
     @Provides

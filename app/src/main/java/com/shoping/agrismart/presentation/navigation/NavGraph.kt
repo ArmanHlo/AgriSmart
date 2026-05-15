@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.shoping.agrismart.presentation.auth.CompleteProfileScreen
 import com.shoping.agrismart.presentation.auth.LoginScreen
 import com.shoping.agrismart.presentation.auth.RegisterScreen
+import com.shoping.agrismart.presentation.calendar.FarmingCalendarScreen
 import com.shoping.agrismart.presentation.chat.ChatScreen
 import com.shoping.agrismart.presentation.community.CommunityScreen
 import com.shoping.agrismart.presentation.crop.CropRecommendationScreen
@@ -18,6 +19,7 @@ import com.shoping.agrismart.presentation.home.HomeScreen
 import com.shoping.agrismart.presentation.irrigation.IrrigationScreen
 import com.shoping.agrismart.presentation.journal.FarmJournalScreen
 import com.shoping.agrismart.presentation.market.MarketPriceScreen
+import com.shoping.agrismart.presentation.notes.MyNotesScreen
 import com.shoping.agrismart.presentation.onboarding.OnboardingScreen
 import com.shoping.agrismart.presentation.pest.PestCalendarScreen
 import com.shoping.agrismart.presentation.profile.ProfileScreen
@@ -151,6 +153,16 @@ fun NavGraph(
         }
         composable(Screen.PestCalendar.route) {
             PestCalendarScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.FarmingCalendar.route) {
+            FarmingCalendarScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Screen.MyNotes.route) {
+            MyNotesScreen(
                 onBack = { navController.popBackStack() }
             )
         }

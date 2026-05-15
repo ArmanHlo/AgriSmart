@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AgriSmart</string>
+    <string name="app_name">KrishiMitra</string>
     <string name="profile">Profile</string>
     <string name="email">Email</string>
     <string name="farm_size">Farm Size</string>
@@ -143,4 +143,18 @@
     <string name="prev_pheromones">Pheromone traps</string>
     <string name="prev_sticky_traps">Yellow sticky traps</string>
     <string name="prev_chlorpyrifos">Chlorpyrifos spray</string>
+
+    <!-- Weather Enhanced Strings -->
+    <string name="seven_day_forecast">7-Day Forecast</string>
+    <string name="hourly_breakdown_available">Hourly breakdown available</string>
+    <string name="soil_intelligence">Soil Intelligence</string>
+    <string name="real_time_soil_metrics">Real-time soil metrics (0–7cm depths)</string>
+    <string name="moisture">Moisture</string>
+    <string name="soil_temp">Soil Temp</string>
+    <string name="evapotranspiration_value">Evapotranspiration: %1$.2f mm</string>
+    <string name="farming_calendar">Farming Calendar</string>
+    <string name="historical_trends">Historical Trends</string>
+    <string name="thirty_day_weather_history">30-day weather history</string>
+    <string name="ai_generated_weekly_schedule">AI-generated weekly schedule</string>
+    <string name="my_notes">My Notes</string>
 </resources>

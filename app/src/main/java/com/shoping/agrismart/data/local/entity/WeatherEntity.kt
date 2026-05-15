@@ -13,5 +13,10 @@ data class WeatherEntity(
     val humidity: Int,
     val description: String,
     val icon: String,
+    val windSpeed: Double = 0.0,
+    val uvIndex: Double = 0.0,
+    val soilMoisture: Double = 0.0,
+    val soilTemperature: Double = 0.0,
+    val evapotranspiration: Double = 0.0,
     val timestamp: Long = System.currentTimeMillis()
 )
