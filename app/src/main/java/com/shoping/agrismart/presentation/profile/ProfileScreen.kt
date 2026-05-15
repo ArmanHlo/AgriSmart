@@ -195,9 +195,10 @@ fun ProfileItem(label: String, value: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "$label: ",
+                text = "$label",
                 color = DarkTextSub,
-                style = TypographyTokens.BodyM
+                style = TypographyTokens.BodyM,
+                modifier = Modifier.width(100.dp) // Fixed width for labels ensures alignment without huge gaps
             )
             Text(
                 text = value,
@@ -205,7 +206,6 @@ fun ProfileItem(label: String, value: String) {
                 fontWeight = FontWeight.Bold,
                 style = TypographyTokens.BodyM,
                 modifier = Modifier.weight(1f),
-                textAlign = androidx.compose.ui.text.style.TextAlign.End,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

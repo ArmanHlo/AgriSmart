@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.TrendingDown
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,7 +34,6 @@ fun MarketPriceScreen(
     viewModel: MarketPriceViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
 
     Box(modifier = Modifier.fillMaxSize().background(DarkBg)) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -46,12 +42,20 @@ fun MarketPriceScreen(
             Column(modifier = Modifier.padding(horizontal = Spacing.md)) {
                 // Search Bar
                 OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
+                    value = state.searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
                     modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.m),
                     placeholder = { Text(stringResource(R.string.search_placeholder), style = TypographyTokens.BodyM, color = DarkTextSub) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = BrandGreenGlow) },
-                    trailingIcon = { Icon(Icons.Default.FilterList, null, tint = DarkTextSub) },
+                    trailingIcon = { 
+                        if (state.searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
+                                Icon(Icons.Default.Close, null, tint = DarkTextSub)
+                            }
+                        } else {
+                            Icon(Icons.Default.FilterList, null, tint = DarkTextSub)
+                        }
+                    },
                     shape = ShapePill,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = DarkSurface2,
@@ -79,18 +83,32 @@ fun MarketPriceScreen(
                         ShimmerBox(width = 400.dp, height = 100.dp, modifier = Modifier.padding(bottom = Spacing.m))
                     }
                 } else {
+                    // Local filter for instant responsiveness on already loaded data
                     val filteredPrices = state.prices.filter {
-                        it.commodity.contains(searchQuery, ignoreCase = true) ||
-                        it.market.contains(searchQuery, ignoreCase = true)
+                        it.commodity.contains(state.searchQuery, ignoreCase = true) ||
+                        it.market.contains(state.searchQuery, ignoreCase = true) ||
+                        it.district.contains(state.searchQuery, ignoreCase = true)
                     }
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(Spacing.m),
-                        contentPadding = PaddingValues(bottom = 100.dp)
-                    ) {
-                        items(filteredPrices) { price ->
-                            MarketPriceCardPremium(price = price)
+                    if (filteredPrices.isEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(top = 80.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(Icons.Default.Info, null, modifier = Modifier.size(64.dp), tint = DarkTextSub.copy(alpha = 0.5f))
+                            Spacer(Modifier.height(Spacing.m))
+                            Text("No matches found", style = TypographyTokens.HeadingM, color = Color.White)
+                            Text("Try searching for a different commodity or market", style = TypographyTokens.BodyS, color = DarkTextSub)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.m),
+                            contentPadding = PaddingValues(bottom = 100.dp)
+                        ) {
+                            items(filteredPrices) { price ->
+                                MarketPriceCardPremium(price = price)
+                            }
                         }
                     }
                 }

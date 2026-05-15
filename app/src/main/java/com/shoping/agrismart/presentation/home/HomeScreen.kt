@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -635,59 +636,85 @@ fun WeatherTrendsCard() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(200.dp) // Increased height for labels
                     .background(Color.Black.copy(0.2f), ShapeM)
-                    .padding(8.dp)
+                    .padding(Spacing.m)
             ) {
-                AndroidView(
-                    factory = { context ->
-                        LineChart(context).apply {
-                            description.isEnabled = false
-                            setTouchEnabled(true)
-                            setDrawGridBackground(false)
-                            setScaleEnabled(false)
-                            setPinchZoom(false)
-                            
-                            xAxis.apply {
-                                position = XAxis.XAxisPosition.BOTTOM
-                                textColor = AndroidColor.GRAY
-                                setDrawGridLines(false)
-                                axisLineColor = AndroidColor.DKGRAY
-                                valueFormatter = object : ValueFormatter() {
-                                    override fun getFormattedValue(value: Float): String = "Day ${value.toInt()}"
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Y-Axis Label
+                        Text(
+                            text = "Temp (°C)",
+                            style = TypographyTokens.Micro,
+                            color = DarkTextSub,
+                            modifier = Modifier.rotate(-90f).padding(bottom = 4.dp)
+                        )
+                        
+                        AndroidView(
+                            factory = { context ->
+                                LineChart(context).apply {
+                                    description.isEnabled = false
+                                    setTouchEnabled(true)
+                                    setDrawGridBackground(false)
+                                    setScaleEnabled(false)
+                                    setPinchZoom(false)
+                                    setExtraOffsets(5f, 5f, 5f, 15f) // Extra padding for labels
+                                    
+                                    xAxis.apply {
+                                        position = XAxis.XAxisPosition.BOTTOM
+                                        textColor = AndroidColor.GRAY
+                                        setDrawGridLines(false)
+                                        axisLineColor = AndroidColor.DKGRAY
+                                        yOffset = 10f
+                                        valueFormatter = object : ValueFormatter() {
+                                            override fun getFormattedValue(value: Float): String = "Day ${value.toInt()}"
+                                        }
+                                    }
+                                    
+                                    axisLeft.apply {
+                                        textColor = AndroidColor.GRAY
+                                        setDrawGridLines(true)
+                                        gridColor = AndroidColor.argb(40, 255, 255, 255)
+                                        axisLineColor = AndroidColor.DKGRAY
+                                        xOffset = 10f
+                                    }
+                                    
+                                    axisRight.isEnabled = false
+                                    legend.isEnabled = false
                                 }
-                            }
-                            
-                            axisLeft.apply {
-                                textColor = AndroidColor.GRAY
-                                setDrawGridLines(true)
-                                gridColor = AndroidColor.argb(40, 255, 255, 255)
-                                axisLineColor = AndroidColor.DKGRAY
-                            }
-                            
-                            axisRight.isEnabled = false
-                            legend.isEnabled = false
-                        }
-                    },
-                    update = { chart ->
-                        val entries = trendData.map { Entry(it.day, it.temp) }
-                        val dataSet = LineDataSet(entries, "Temperature").apply {
-                            color = AndroidColor.parseColor("#43A047") // BrandGreenGlow equivalent
-                            valueTextColor = AndroidColor.WHITE
-                            setDrawCircles(true)
-                            setCircleColor(AndroidColor.parseColor("#43A047"))
-                            circleRadius = 4f
-                            lineWidth = 2f
-                            mode = LineDataSet.Mode.CUBIC_BEZIER
-                            setDrawFilled(true)
-                            fillDrawable = context.getDrawable(android.R.drawable.screen_background_dark_transparent)
-                            fillAlpha = 50
-                        }
-                        chart.data = LineData(dataSet)
-                        chart.invalidate()
-                    },
-                    modifier = Modifier.fillMaxSize()
-                )
+                            },
+                            update = { chart ->
+                                val entries = trendData.map { Entry(it.day, it.temp) }
+                                val dataSet = LineDataSet(entries, "Temperature").apply {
+                                    color = AndroidColor.parseColor("#43A047") 
+                                    valueTextColor = AndroidColor.WHITE
+                                    setDrawCircles(true)
+                                    setCircleColor(AndroidColor.parseColor("#43A047"))
+                                    circleRadius = 4f
+                                    lineWidth = 2f
+                                    mode = LineDataSet.Mode.CUBIC_BEZIER
+                                    setDrawFilled(true)
+                                    fillDrawable = context.getDrawable(android.R.drawable.screen_background_dark_transparent)
+                                    fillAlpha = 50
+                                }
+                                chart.data = LineData(dataSet)
+                                chart.invalidate()
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    
+                    // X-Axis Label
+                    Text(
+                        text = "Last 10 Days",
+                        style = TypographyTokens.Micro,
+                        color = DarkTextSub,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp)
+                    )
+                }
             }
         }
     }

@@ -18,11 +18,25 @@ class MarketPriceViewModel @Inject constructor(
     private val _state = MutableStateFlow(MarketPriceState())
     val state: StateFlow<MarketPriceState> = _state.asStateFlow()
 
+    private var currentLocation: String? = null
+
     init {
         viewModelScope.launch {
             userPreferenceManager.userPreferences.collect { prefs ->
-                fetchPrices(stateFilter = prefs.selectedLocation)
+                currentLocation = prefs.selectedLocation
+                if (_state.value.searchQuery.isBlank()) {
+                    fetchPrices(stateFilter = currentLocation)
+                }
             }
+        }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _state.update { it.copy(searchQuery = query) }
+        if (query.length >= 3) {
+            fetchPrices(commodityFilter = query)
+        } else if (query.isEmpty()) {
+            fetchPrices(stateFilter = currentLocation)
         }
     }
 
@@ -43,5 +57,6 @@ class MarketPriceViewModel @Inject constructor(
 data class MarketPriceState(
     val isLoading: Boolean = false,
     val prices: List<MarketPrice> = emptyList(),
-    val error: String? = null
+    val error: String? = null,
+    val searchQuery: String = ""
 )

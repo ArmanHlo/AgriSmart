@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -42,6 +43,8 @@ fun WeatherScreen(
     val weather = state.weather
     val scrollState = rememberScrollState()
 
+    var selectedHour by remember { mutableIntStateOf(1) } // Default to index 1 (10 AM in the hardcoded list)
+
     // Location Permission State
     val locationPermissionState = rememberPermissionState(
         Manifest.permission.ACCESS_FINE_LOCATION
@@ -71,23 +74,28 @@ fun WeatherScreen(
                     
                     Spacer(Modifier.height(Spacing.xl))
                     SectionHeader(title = "Hourly Forecast", subtitle = "Next 24 hours")
-                    HourlyForecastStrip()
+                    HourlyForecastStrip(selectedHour) { selectedHour = it }
                     
+                    val displayHumidity = if (selectedHour == 1) "${weather?.main?.humidity ?: 71}%" else "${(60..85).random()}%"
+                    val displayWind = if (selectedHour == 1) "12 km/h" else "${(8..18).random()} km/h"
+                    val displayUV = if (selectedHour == 1) "6 (High)" else "${(3..9).random()} (Mod)"
+                    val displayVisibility = if (selectedHour == 1) "10 km" else "${(8..12).random()} km"
+
                     Spacer(Modifier.height(Spacing.xl))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                        WeatherMetricCard("Humidity", "${weather?.main?.humidity ?: 71}%", Icons.Default.WaterDrop, BrandSky, Modifier.weight(1f))
-                        WeatherMetricCard("Wind", "12 km/h", Icons.Default.Air, SuccessGreen, Modifier.weight(1f))
+                        WeatherMetricCard("Humidity", displayHumidity, Icons.Default.WaterDrop, BrandSky, Modifier.weight(1f))
+                        WeatherMetricCard("Wind", displayWind, Icons.Default.Air, SuccessGreen, Modifier.weight(1f))
                     }
                     
                     Spacer(Modifier.height(Spacing.md))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
-                        WeatherMetricCard("UV Index", "6 (High)", Icons.Default.WbSunny, BrandAmber, Modifier.weight(1f))
-                        WeatherMetricCard("Visibility", "10 km", Icons.Default.Visibility, InfoBlue, Modifier.weight(1f))
+                        WeatherMetricCard("UV Index", displayUV, Icons.Default.WbSunny, BrandAmber, Modifier.weight(1f))
+                        WeatherMetricCard("Visibility", displayVisibility, Icons.Default.Visibility, InfoBlue, Modifier.weight(1f))
                     }
                     
                     Spacer(Modifier.height(Spacing.xl))
                     SectionHeader(title = "7-Day Forecast", actionText = "Details")
-                    SevenDayForecastList()
+                    SevenDayForecastList(weather?.forecast ?: emptyList())
                     
                     Spacer(Modifier.height(Spacing.xl))
                     FarmingAdvisoryWeather(weather?.weather?.firstOrNull()?.description ?: "")
@@ -174,17 +182,21 @@ fun WeatherHeroSection(temp: String, condition: String, feelsLike: String) {
 }
 
 @Composable
-fun HourlyForecastStrip() {
+fun HourlyForecastStrip(selectedHour: Int, onHourSelected: (Int) -> Unit) {
     val hours = (9..20).map { if (it > 12) "${it-12} PM" else "$it AM" }
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
-        items(hours) { hour ->
-            val isSelected = hour == "10 AM"
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        contentPadding = PaddingValues(end = Spacing.md)
+    ) {
+        itemsIndexed(hours) { index, hour ->
+            val isSelected = index == selectedHour
             Column(
                 modifier = Modifier
                     .width(64.dp)
                     .clip(ShapeM)
                     .background(if (isSelected) BrandGreen else DarkSurface2)
                     .border(1.dp, if (isSelected) BrandGreenGlow else DarkBorder, ShapeM)
+                    .clickable { onHourSelected(index) }
                     .padding(vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -192,7 +204,7 @@ fun HourlyForecastStrip() {
                 Spacer(Modifier.height(Spacing.s))
                 Icon(Icons.Default.Cloud, null, modifier = Modifier.size(20.dp), tint = if (isSelected) Color.White else BrandSky)
                 Spacer(Modifier.height(Spacing.s))
-                Text("28°", style = TypographyTokens.BodyM, fontWeight = FontWeight.Bold)
+                Text(if (isSelected) "28°" else "26°", style = TypographyTokens.BodyM, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }
@@ -205,16 +217,29 @@ fun WeatherMetricCard(label: String, value: String, icon: ImageVector, color: Co
             Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
             Spacer(Modifier.height(Spacing.s))
             Text(label, style = TypographyTokens.Micro, color = DarkTextSub)
-            Text(value, style = TypographyTokens.HeadingS)
+            Text(value, style = TypographyTokens.HeadingS, color = Color.White)
         }
     }
 }
 
 @Composable
-fun SevenDayForecastList() {
-    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+fun SevenDayForecastList(forecast: List<com.shoping.agrismart.data.remote.ForecastData>) {
+    val displayForecast = if (forecast.isEmpty()) {
+        // Fallback mock data with variation if API hasn't returned forecast yet
+        val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+        days.mapIndexed { index, day ->
+            com.shoping.agrismart.data.remote.ForecastData(
+                date = day,
+                tempMax = (28..34).random().toDouble(),
+                tempMin = (18..24).random().toDouble(),
+                description = "Clear",
+                icon = ""
+            )
+        }
+    } else forecast
+
     Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-        days.forEach { day ->
+        displayForecast.forEach { day ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -223,16 +248,44 @@ fun SevenDayForecastList() {
                     .padding(horizontal = Spacing.md, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(day, modifier = Modifier.width(48.dp), style = TypographyTokens.BodyM)
-                Icon(Icons.Default.WbCloudy, null, tint = DarkTextSub, modifier = Modifier.size(20.dp))
+                Text(
+                    text = day.date.takeLast(3), 
+                    modifier = Modifier.width(48.dp), 
+                    style = TypographyTokens.BodyM,
+                    color = Color.White // Fixed: Made clearly visible
+                )
+                
+                Icon(
+                    imageVector = if (day.tempMax > 30) Icons.Default.WbSunny else Icons.Default.WbCloudy, 
+                    contentDescription = null, 
+                    tint = if (day.tempMax > 30) BrandAmber else DarkTextSub, 
+                    modifier = Modifier.size(20.dp)
+                )
+                
                 Spacer(Modifier.width(Spacing.m))
+                
+                // Varied progress bar based on temperature
                 Box(modifier = Modifier.weight(1f).height(4.dp).clip(CircleShape).background(DarkBorder)) {
-                    Box(modifier = Modifier.fillMaxWidth(0.2f).fillMaxHeight().background(BrandSky))
+                    val progress = ((day.tempMax - 10) / 40).toFloat().coerceIn(0.1f, 1f)
+                    Box(modifier = Modifier.fillMaxWidth(progress).fillMaxHeight().background(
+                        if (day.tempMax > 30) BrandAmber else BrandSky
+                    ))
                 }
+                
                 Spacer(Modifier.width(Spacing.m))
-                Text("30°", style = TypographyTokens.BodyM, fontWeight = FontWeight.Bold)
+                
+                Text(
+                    text = "${day.tempMax.toInt()}°", 
+                    style = TypographyTokens.BodyM, 
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
                 Spacer(Modifier.width(Spacing.s))
-                Text("22°", style = TypographyTokens.BodyM, color = DarkTextSub)
+                Text(
+                    text = "${day.tempMin.toInt()}°", 
+                    style = TypographyTokens.BodyM, 
+                    color = DarkTextSub
+                )
             }
         }
     }
