@@ -1,0 +1,15 @@
+package com.shoping.agrismartapp.domain.model
+
+import java.util.Date
+
+data class Post(
+    val id: String = "",
+    val authorName: String = "",
+    val content: String = "",
+    val imageUrl: String? = null,
+    val timestamp: Date = Date(),
+    val likes: Int = 0,
+    val liked: Boolean = false,
+    val commentCount: Int = 0,
+    val topic: String = "General"
+)

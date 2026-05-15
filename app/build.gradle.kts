@@ -16,11 +16,11 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.shoping.agrismart"
+    namespace = "com.shoping.agrismartapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.shoping.agrismart"
+        applicationId = "com.shoping.agrismartapp"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

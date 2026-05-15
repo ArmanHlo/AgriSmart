@@ -1,0 +1,16 @@
+package com.shoping.agrismartapp.presentation.crop
+
+import com.shoping.agrismartapp.domain.model.Crop
+
+data class CropRecommendationState(
+    val currentStep: Int = 1,
+    val selectedLocation: String = "",
+    val selectedSoilType: String = "",
+    val selectedSeason: String = "",
+    val waterSource: String = "",
+    val budget: Float = 50000f,
+    val recommendations: List<Crop> = emptyList(),
+    val aiAdvice: String? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null
+)

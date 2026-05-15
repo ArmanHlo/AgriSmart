@@ -10,7 +10,26 @@
       "client_info": {
         "mobilesdk_app_id": "1:135199679366:android:97b6330c0230d02e7f4207",
         "android_client_info": {
-          "package_name": "com.shoping.agrismart"
+          "package_name": "com.shoping.agrismartapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC22rwJoQwrEpLGzpwDPI726jO1XtXoRcI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:135199679366:android:d2f2cca225dcc88e7f4207",
+        "android_client_info": {
+          "package_name": "com.shoping.agrismartapp"
         }
       },
       "oauth_client": [],

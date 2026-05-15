@@ -12,7 +12,7 @@
     <uses-feature android:name="android.hardware.camera.any" />
 
     <application
-        android:name=".KrishiMitraApp"
+        android:name="com.shoping.agrismartapp.KrishiMitraApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

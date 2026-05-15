@@ -1,0 +1,24 @@
+package com.shoping.agrismartapp.domain.repository
+
+import android.app.Activity
+import android.net.Uri
+import com.shoping.agrismartapp.domain.model.User
+import kotlinx.coroutines.flow.Flow
+
+interface AuthRepository {
+    val currentUser: Flow<User?>
+    val currentUid: String?
+    
+    // Email/Password Authentication
+    suspend fun signUpWithEmail(email: String, password: String): Result<User>
+    suspend fun signInWithEmail(email: String, password: String): Result<User>
+
+    // Phone Authentication
+    suspend fun sendOtp(phoneNumber: String, activity: Activity): Result<Unit>
+    suspend fun verifyOtp(otpCode: String): Result<User>
+
+    suspend fun logout()
+    suspend fun saveUserProfile(user: User): Result<Unit>
+    suspend fun getUserProfile(uid: String): Result<User?>
+    suspend fun uploadProfileImage(uri: Uri): Result<String>
+}
