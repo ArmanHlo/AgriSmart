@@ -2,6 +2,7 @@ package com.shoping.agrismart.di
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.shoping.agrismart.BuildConfig
+import com.shoping.agrismart.data.UserPreferenceManager
 import com.shoping.agrismart.data.local.dao.FAQDao
 import com.shoping.agrismart.data.local.dao.NoteDao
 import com.shoping.agrismart.data.repository.ChatRepositoryImpl
@@ -33,9 +34,17 @@ object ChatModule {
         generativeModel: GenerativeModel,
         authRepository: AuthRepository,
         weatherRepository: WeatherRepository,
+        userPreferenceManager: UserPreferenceManager,
         faqDao: FAQDao,
         noteDao: NoteDao
     ): ChatRepository {
-        return ChatRepositoryImpl(generativeModel, authRepository, weatherRepository, faqDao, noteDao)
+        return ChatRepositoryImpl(
+            generativeModel,
+            authRepository,
+            weatherRepository,
+            userPreferenceManager,
+            faqDao,
+            noteDao
+        )
     }
 }

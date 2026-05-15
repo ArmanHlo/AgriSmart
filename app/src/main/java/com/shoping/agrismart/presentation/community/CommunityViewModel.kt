@@ -57,10 +57,10 @@ class CommunityViewModel @Inject constructor(
         }
     }
 
-    fun likePost(postId: String) {
+    fun likePost(post: Post) {
         viewModelScope.launch {
             try {
-                repository.likePost(postId)
+                repository.likePost(post)
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
             }

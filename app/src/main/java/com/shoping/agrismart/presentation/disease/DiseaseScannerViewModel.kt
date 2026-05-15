@@ -18,16 +18,20 @@ class DiseaseScannerViewModel @Inject constructor(
     private val _state = MutableStateFlow(DiseaseScannerState())
     val state: StateFlow<DiseaseScannerState> = _state.asStateFlow()
 
-    fun onImageCaptured(bitmap: Bitmap) {
+    fun onImageCaptured(bitmap: Bitmap, useGemini: Boolean = false) {
         _state.update { it.copy(isLoading = true, capturedImage = bitmap) }
         viewModelScope.launch {
-            val result = classifier.classify(bitmap)
+            val result = classifier.classify(bitmap, useGemini)
             _state.update { it.copy(isLoading = false, scanResult = result) }
         }
     }
 
+    fun toggleGemini(enabled: Boolean) {
+        _state.update { it.copy(useGemini = enabled) }
+    }
+
     fun resetScanner() {
-        _state.update { DiseaseScannerState() }
+        _state.update { DiseaseScannerState(useGemini = _state.value.useGemini) }
     }
 }
 
@@ -35,5 +39,6 @@ data class DiseaseScannerState(
     val isLoading: Boolean = false,
     val capturedImage: Bitmap? = null,
     val scanResult: ScanResult? = null,
-    val error: String? = null
+    val error: String? = null,
+    val useGemini: Boolean = false
 )

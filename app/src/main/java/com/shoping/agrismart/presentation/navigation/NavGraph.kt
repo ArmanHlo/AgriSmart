@@ -5,8 +5,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.shoping.agrismart.presentation.auth.CompleteProfileScreen
 import com.shoping.agrismart.presentation.auth.LoginScreen
 import com.shoping.agrismart.presentation.auth.RegisterScreen
@@ -98,10 +100,18 @@ fun NavGraph(
         }
         composable(Screen.CropAdvisor.route) {
             CropRecommendationScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigate = { route -> navController.navigate(route) }
             )
         }
-        composable(Screen.KrishiBot.route) {
+        composable(
+            route = Screen.KrishiBot.route + "?prompt={prompt}",
+            arguments = listOf(navArgument("prompt") { 
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            })
+        ) {
             ChatScreen(
                 onBack = { navController.popBackStack() }
             )
@@ -138,7 +148,8 @@ fun NavGraph(
         }
         composable(Screen.Community.route) {
             CommunityScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onNavigate = { route -> navController.navigate(route) }
             )
         }
         composable(Screen.VideoHub.route) {

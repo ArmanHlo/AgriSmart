@@ -9,5 +9,6 @@ data class MarketPrice(
     val arrivalDate: String,
     val minPrice: Double,
     val maxPrice: Double,
-    val modalPrice: Double
+    val modalPrice: Double,
+    val unit: String = "Quintal"
 )

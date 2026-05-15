@@ -1,6 +1,7 @@
 package com.shoping.agrismart.presentation.chat
 
 import android.graphics.Bitmap
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shoping.agrismart.domain.model.ChatMessage
@@ -14,11 +15,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val repository: ChatRepository
+    private val repository: ChatRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = _state.asStateFlow()
+
+    init {
+        savedStateHandle.get<String>("prompt")?.let { prompt ->
+            onSendMessage(prompt)
+        }
+    }
 
     fun onSendMessage(content: String, image: Bitmap? = null) {
         if (content.isBlank() && image == null) return

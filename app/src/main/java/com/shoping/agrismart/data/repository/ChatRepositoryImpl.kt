@@ -23,6 +23,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val generativeModel: GenerativeModel,
     private val authRepository: AuthRepository,
     private val weatherRepository: WeatherRepository,
+    private val userPreferenceManager: com.shoping.agrismart.data.UserPreferenceManager,
     private val faqDao: FAQDao,
     private val noteDao: NoteDao
 ) : ChatRepository {
@@ -47,23 +48,25 @@ class ChatRepositoryImpl @Inject constructor(
 
         // 2. Gather context for Gemini
         val user = authRepository.currentUser.first()
+        val prefs = userPreferenceManager.userPreferences.first()
         val weather = weatherRepository.getCurrentWeather(28.6139, 77.2090).first()
 
         val systemContext = """
             You are KrishiBot, an expert farming assistant. 
             Farmer Context:
-            - Name: ${user?.name ?: "Farmer"}
-            - Location: ${user?.location ?: "Unknown"}
-            - Primary Crop: ${user?.primaryCrop ?: "Not specified"}
-            - Farm Size: ${user?.farmSize ?: "Unknown"}
+            - Name: ${user?.name ?: "Arjun Singh"}
+            - Location: ${prefs.selectedLocation}, ${prefs.selectedDistrict}
+            - Current Crop: ${prefs.selectedCrop}
+            - Soil: ${prefs.selectedSoil}
+            - Farm Size: ${user?.farmSize ?: "3 acres"}
             - Current Weather: ${weather.main.temp}°C, ${weather.weather.firstOrNull()?.description}
             
             Instructions:
             - Provide practical, expert advice on agriculture, pests, crops, and government schemes.
-            - Respond in the language used by the farmer (Hindi, Punjabi, Telugu, Tamil, Marathi, etc.).
+            - Default Language: English. Only respond in Hindi if the farmer explicitly asks in Hindi or asks you to speak in Hindi.
+            - Tone: Extremely polite, helpful, and culturally respectful (Indian style). Use "Ji" or formal address where appropriate.
             - If an image is provided, analyze it for crop diseases or plant health issues.
             - Keep answers concise and actionable.
-            - If the user says "save this", they want to save the previous response to their notes. (But you handle the reply normally).
         """.trimIndent()
 
         // ... existing Gemini call logic ...

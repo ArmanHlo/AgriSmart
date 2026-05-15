@@ -61,27 +61,36 @@ class CommunityRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun likePost(postId: String) {
+    override suspend fun likePost(post: Post) {
+        val newLiked = !post.liked
+        val updatedPost = post.copy(
+            liked = newLiked,
+            likes = if (newLiked) post.likes + 1 else (post.likes - 1).coerceAtLeast(0)
+        )
+
+        // Immediate local update (overrides Firebase state in the combine block)
         val current = mockPosts.value.toMutableList()
-        val index = current.indexOfFirst { it.id == postId }
-        
+        val index = current.indexOfFirst { it.id == post.id }
         if (index != -1) {
-            val post = current[index]
-            val wasLiked = post.liked
-            val newLikes = if (wasLiked) post.likes - 1 else post.likes + 1
-            current[index] = post.copy(likes = newLikes.coerceAtLeast(0), liked = !wasLiked)
-            mockPosts.value = current
+            current[index] = updatedPost
+        } else {
+            current.add(updatedPost)
         }
+        mockPosts.value = current
 
         try {
-            val docRef = firestore.collection("posts").document(postId)
+            val docRef = firestore.collection("posts").document(post.id)
             firestore.runTransaction { transaction ->
                 val snapshot = transaction.get(docRef)
-                val currentLikes = snapshot.getLong("likes") ?: 0
-                val isCurrentlyLiked = index != -1 && current[index].liked
-                val finalLikes = if (isCurrentlyLiked) currentLikes + 1 else (currentLikes - 1).coerceAtLeast(0)
+                if (!snapshot.exists()) return@runTransaction
+                
+                val firebaseLikes = snapshot.getLong("likes") ?: 0
+                // Use the toggled state based on the local initial state for the transaction
+                val finalLiked = !post.liked 
+                val finalLikes = if (finalLiked) firebaseLikes + 1 else (firebaseLikes - 1).coerceAtLeast(0)
+                
                 transaction.update(docRef, "likes", finalLikes)
-                transaction.update(docRef, "liked", isCurrentlyLiked)
+                transaction.update(docRef, "liked", finalLiked)
             }.await()
         } catch (e: Exception) {
             e.printStackTrace()

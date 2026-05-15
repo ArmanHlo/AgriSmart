@@ -14,7 +14,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
     private val cropRepository: CropRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userPreferenceManager: com.shoping.agrismart.data.UserPreferenceManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -22,7 +23,22 @@ class HomeViewModel @Inject constructor(
 
     init {
         observeUser()
-        loadDashboardData(28.6139, 77.2090) // Default Delhi coordinates
+        observePreferencesAndLoadData()
+    }
+
+    private fun observePreferencesAndLoadData() {
+        viewModelScope.launch {
+            userPreferenceManager.userPreferences.collect { prefs ->
+                // Basic mapping of states to coordinates for demonstration
+                val (lat, lon) = when (prefs.selectedLocation) {
+                    "Punjab" -> 30.9010 to 75.8573 // Ludhiana
+                    "Maharashtra" -> 19.0760 to 72.8777 // Mumbai
+                    "Karnataka" -> 12.9716 to 77.5946 // Bangalore
+                    else -> 28.6139 to 77.2090 // Delhi
+                }
+                loadDashboardData(lat, lon)
+            }
+        }
     }
 
     private fun observeUser() {

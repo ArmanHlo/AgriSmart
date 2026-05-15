@@ -10,11 +10,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class IrrigationViewModel @Inject constructor(
-    private val cropRepository: CropRepository
+    private val cropRepository: CropRepository,
+    private val userPreferenceManager: com.shoping.agrismart.data.UserPreferenceManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(IrrigationState())
     val state: StateFlow<IrrigationState> = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            userPreferenceManager.userPreferences.collect { prefs ->
+                _state.update { it.copy(
+                    selectedCrop = prefs.selectedCrop,
+                    selectedSoil = prefs.selectedSoil,
+                    farmArea = "1" // Default
+                ) }
+                calculateSchedule()
+            }
+        }
+    }
 
     fun onCropSelected(crop: String) {
         _state.update { it.copy(selectedCrop = crop) }
@@ -34,28 +48,41 @@ class IrrigationViewModel @Inject constructor(
     private fun calculateSchedule() {
         if (_state.value.selectedCrop.isEmpty() || _state.value.selectedSoil.isEmpty()) return
 
-        // Simple Irrigation Logic based on common agricultural ETc values
-        val baseWaterPerAcre = when (_state.value.selectedCrop) {
-            "Rice (Paddy)" -> 5000.0
-            "Sugarcane" -> 4000.0
-            "Wheat" -> 2000.0
-            "Cotton" -> 2500.0
-            else -> 1500.0
+        // Refined Irrigation Logic based on ETc = ETo x Kc
+        // ETo (Reference Evapotranspiration) normally comes from weather API (Open-Meteo)
+        // Here we use a representative value (e.g., 4.5 mm/day for Indian summer)
+        val ETo = 4.5 
+        
+        val Kc = when (_state.value.selectedCrop) {
+            "Rice (Paddy)" -> 1.15
+            "Sugarcane" -> 1.25
+            "Wheat" -> 0.85
+            "Cotton" -> 0.90
+            "Maize" -> 1.05
+            else -> 1.0
         }
 
+        val ETc = ETo * Kc // mm/day
+        
         val soilMultiplier = when (_state.value.selectedSoil) {
-            "Sandy" -> 1.5 // Dries faster
-            "Clay" -> 0.7  // Holds water longer
+            "Sandy" -> 1.2 // High drainage
+            "Clay" -> 0.8  // High retention
             else -> 1.0
         }
 
         val area = _state.value.farmArea.toDoubleOrNull() ?: 1.0
-        val totalLiters = baseWaterPerAcre * soilMultiplier * area
+        // 1 mm of water over 1 acre = approx 4047 liters
+        val litersPerAcrePerDay = ETc * 4047 * soilMultiplier
+        val totalLiters = litersPerAcrePerDay * area
 
         _state.update { 
             it.copy(
                 recommendedLiters = totalLiters,
-                frequency = if (_state.value.selectedSoil == "Sandy") "Every 2 days" else "Every 4-5 days"
+                frequency = when {
+                    _state.value.selectedSoil == "Sandy" -> "Every 1-2 days (High drainage)"
+                    _state.value.selectedSoil == "Clay" -> "Every 5-7 days (Good retention)"
+                    else -> "Every 3-4 days"
+                }
             )
         }
     }

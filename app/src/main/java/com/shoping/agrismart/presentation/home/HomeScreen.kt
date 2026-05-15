@@ -32,7 +32,16 @@ import com.shoping.agrismart.presentation.navigation.Screen
 import com.shoping.agrismart.presentation.theme.*
 
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import com.shoping.agrismart.R
+import androidx.compose.ui.viewinterop.AndroidView
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
+import android.graphics.Color as AndroidColor
 
 @Composable
 fun HomeScreen(
@@ -65,7 +74,7 @@ fun HomeScreen(
                 WeatherTrendsCard()
 
                 Spacer(Modifier.height(Spacing.xl))
-                FarmingCalendarCard(state.weather?.forecast ?: emptyList())
+                FarmingCalendarCard(state.weather?.forecast ?: emptyList(), onNavigate)
 
                 Spacer(Modifier.height(Spacing.xl))
                 SectionHeader(
@@ -79,10 +88,10 @@ fun HomeScreen(
                 SectionHeader(
                     title = stringResource(R.string.ai_advisor), 
                     actionText = stringResource(R.string.see_all), 
-                    onAction = {}, 
+                    onAction = { onNavigate(Screen.CropAdvisor.route) }, 
                     titleColor = Color.White
                 )
-                CropAdvisorPreview()
+                CropAdvisorPreview(onNavigate)
                 
                 Spacer(Modifier.height(Spacing.xl))
                 MarketPulseCard()
@@ -93,7 +102,7 @@ fun HomeScreen(
                     subtitle = stringResource(R.string.based_on_recent_data), 
                     titleColor = Color.White
                 )
-                FarmHealthCard()
+                FarmHealthCard(state.weather?.advisory)
                 
                 Spacer(Modifier.height(Spacing.xxl))
             }
@@ -313,7 +322,7 @@ fun ActionCard(action: HomeAction, onNavigate: (String) -> Unit, modifier: Modif
 }
 
 @Composable
-fun CropAdvisorPreview() {
+fun CropAdvisorPreview(onNavigate: (String) -> Unit) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(Spacing.md),
         contentPadding = PaddingValues(end = Spacing.md)
@@ -321,7 +330,8 @@ fun CropAdvisorPreview() {
         items(listOf("Wheat", "Mustard", "Potato")) { crop ->
             KrishiCard(
                 modifier = Modifier.width(160.dp),
-                gradient = DarkSurface2.toBrush()
+                gradient = DarkSurface2.toBrush(),
+                onClick = { onNavigate(Screen.KrishiBot.route + "?prompt=Tell me more about $crop cultivation") }
             ) {
                 Column(modifier = Modifier.padding(Spacing.m)) {
                     Box(modifier = Modifier.size(60.dp).background(BrandGreenLight.copy(0.1f), CircleShape)) {
@@ -361,18 +371,58 @@ fun MarketPulseCard() {
 }
 
 @Composable
-fun FarmHealthCard() {
+fun FarmHealthCard(advisory: com.shoping.agrismart.data.remote.SmartAdvisory? = null) {
     KrishiCard(modifier = Modifier.fillMaxWidth(), gradient = DarkSurface.toBrush()) {
-        Row(
-            modifier = Modifier.padding(Spacing.md),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            CropScoreGauge(score = 78, size = 100.dp)
-            Column(modifier = Modifier.weight(1f).padding(start = Spacing.md)) {
-                HealthMetric("Soil", 0.68f)
-                HealthMetric("Water", 0.90f)
-                HealthMetric("Weather", 0.82f)
+        Column(modifier = Modifier.padding(Spacing.md)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                CropScoreGauge(score = 78, size = 100.dp)
+                Column(modifier = Modifier.weight(1f).padding(start = Spacing.md)) {
+                    HealthMetric("Soil", 0.68f)
+                    HealthMetric("Water", 0.90f)
+                    HealthMetric("Weather", 0.82f)
+                }
+            }
+            
+            advisory?.let {
+                Spacer(Modifier.height(Spacing.m))
+                Surface(
+                    color = when(it.riskLevel) {
+                        "DANGER" -> DangerRed.copy(alpha = 0.1f)
+                        "WARNING" -> BrandAmber.copy(alpha = 0.1f)
+                        else -> SuccessGreen.copy(alpha = 0.1f)
+                    },
+                    shape = ShapeM,
+                    border = BorderStroke(1.dp, when(it.riskLevel) {
+                        "DANGER" -> DangerRed
+                        "WARNING" -> BrandAmber
+                        else -> SuccessGreen
+                    }.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(Spacing.s),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = when(it.riskLevel) {
+                                "DANGER" -> Icons.Default.Warning
+                                "WARNING" -> Icons.Default.Info
+                                else -> Icons.Default.CheckCircle
+                            },
+                            contentDescription = null,
+                            tint = when(it.riskLevel) {
+                                "DANGER" -> DangerRed
+                                "WARNING" -> BrandAmber
+                                else -> SuccessGreen
+                            },
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(it.description, style = TypographyTokens.Micro, color = Color.White)
+                    }
+                }
             }
         }
     }
@@ -561,6 +611,16 @@ fun SoilMetricPill(label: String, value: String) {
 
 @Composable
 fun WeatherTrendsCard() {
+    val context = LocalContext.current
+    val trendData = remember {
+        listOf(
+            TrendPoint(1f, 22f), TrendPoint(2f, 24f), TrendPoint(3f, 23f),
+            TrendPoint(4f, 26f), TrendPoint(5f, 28f), TrendPoint(6f, 27f),
+            TrendPoint(7f, 25f), TrendPoint(8f, 29f), TrendPoint(9f, 31f),
+            TrendPoint(10f, 30f)
+        )
+    }
+
     KrishiCard(
         modifier = Modifier.fillMaxWidth(),
         gradient = DarkSurface.toBrush()
@@ -572,29 +632,78 @@ fun WeatherTrendsCard() {
                 titleColor = Color.White
             )
             
-            // Placeholder for Chart
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color.Black.copy(0.2f), ShapeM),
-                contentAlignment = Alignment.Center
+                    .height(180.dp)
+                    .background(Color.Black.copy(0.2f), ShapeM)
+                    .padding(8.dp)
             ) {
-                Text(
-                    text = "Chart Placeholder (MPAndroidChart)",
-                    style = TypographyTokens.BodyS,
-                    color = DarkTextSub
+                AndroidView(
+                    factory = { context ->
+                        LineChart(context).apply {
+                            description.isEnabled = false
+                            setTouchEnabled(true)
+                            setDrawGridBackground(false)
+                            setScaleEnabled(false)
+                            setPinchZoom(false)
+                            
+                            xAxis.apply {
+                                position = XAxis.XAxisPosition.BOTTOM
+                                textColor = AndroidColor.GRAY
+                                setDrawGridLines(false)
+                                axisLineColor = AndroidColor.DKGRAY
+                                valueFormatter = object : ValueFormatter() {
+                                    override fun getFormattedValue(value: Float): String = "Day ${value.toInt()}"
+                                }
+                            }
+                            
+                            axisLeft.apply {
+                                textColor = AndroidColor.GRAY
+                                setDrawGridLines(true)
+                                gridColor = AndroidColor.argb(40, 255, 255, 255)
+                                axisLineColor = AndroidColor.DKGRAY
+                            }
+                            
+                            axisRight.isEnabled = false
+                            legend.isEnabled = false
+                        }
+                    },
+                    update = { chart ->
+                        val entries = trendData.map { Entry(it.day, it.temp) }
+                        val dataSet = LineDataSet(entries, "Temperature").apply {
+                            color = AndroidColor.parseColor("#43A047") // BrandGreenGlow equivalent
+                            valueTextColor = AndroidColor.WHITE
+                            setDrawCircles(true)
+                            setCircleColor(AndroidColor.parseColor("#43A047"))
+                            circleRadius = 4f
+                            lineWidth = 2f
+                            mode = LineDataSet.Mode.CUBIC_BEZIER
+                            setDrawFilled(true)
+                            fillDrawable = context.getDrawable(android.R.drawable.screen_background_dark_transparent)
+                            fillAlpha = 50
+                        }
+                        chart.data = LineData(dataSet)
+                        chart.invalidate()
+                    },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
     }
 }
 
+data class TrendPoint(val day: Float, val temp: Float)
+
 @Composable
-fun FarmingCalendarCard(forecast: List<com.shoping.agrismart.data.remote.ForecastData>) {
+fun FarmingCalendarCard(
+    forecast: List<com.shoping.agrismart.data.remote.ForecastData>,
+    onNavigate: (String) -> Unit
+) {
     KrishiCard(
         modifier = Modifier.fillMaxWidth(),
-        gradient = Brush.linearGradient(listOf(Color(0xFF5D4037), Color(0xFF8D6E63)))
+        gradient = Brush.linearGradient(listOf(Color(0xFF5D4037), Color(0xFF8D6E63))),
+        onClick = { onNavigate(Screen.FarmingCalendar.route) }
     ) {
         Column(modifier = Modifier.padding(Spacing.md)) {
             Text(stringResource(R.string.farming_calendar), style = TypographyTokens.HeadingM, color = Color.White)

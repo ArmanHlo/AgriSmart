@@ -136,6 +136,30 @@ fun DiseaseScannerScreen(
                     .padding(bottom = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Gemini Toggle
+                Row(
+                    modifier = Modifier
+                        .padding(bottom = Spacing.m)
+                        .clip(ShapePill)
+                        .background(if (state.useGemini) BrandGreen.copy(0.2f) else Color.Black.copy(0.5f))
+                        .clickable { viewModel.toggleGemini(!state.useGemini) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.AutoAwesome, 
+                        null, 
+                        tint = if (state.useGemini) BrandGreenGlow else Color.White,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        if (state.useGemini) "Gemini AI: ON" else "Gemini AI: OFF", 
+                        style = TypographyTokens.Label, 
+                        color = Color.White
+                    )
+                }
+
                 // Capture Button
                 CaptureButton(
                     isLoading = state.isLoading,
@@ -143,7 +167,7 @@ fun DiseaseScannerScreen(
                         val executor = ContextCompat.getMainExecutor(context)
                         imageCapture.takePicture(executor, object : ImageCapture.OnImageCapturedCallback() {
                             override fun onCaptureSuccess(image: ImageProxy) {
-                                viewModel.onImageCaptured(image.toBitmap())
+                                viewModel.onImageCaptured(image.toBitmap(), state.useGemini)
                                 image.close()
                             }
                             override fun onError(exception: ImageCaptureException) {

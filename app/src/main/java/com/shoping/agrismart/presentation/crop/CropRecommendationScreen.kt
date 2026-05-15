@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoping.agrismart.domain.model.Crop
+import com.shoping.agrismart.presentation.navigation.Screen
 import com.shoping.agrismart.presentation.theme.*
 
 import androidx.compose.ui.res.stringResource
@@ -38,6 +40,7 @@ import com.shoping.agrismart.R
 @Composable
 fun CropRecommendationScreen(
     onBack: () -> Unit,
+    onNavigate: (String) -> Unit,
     viewModel: CropRecommendationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -76,40 +79,39 @@ fun CropRecommendationScreen(
                     )
             )
 
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.md)) {
-                // Step Indicator
-                if (state.currentStep <= 5) {
+            // Content Area
+            if (state.currentStep <= 5) {
+                Column(modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.md)) {
+                    // Step Indicator
                     Spacer(Modifier.height(Spacing.m))
                     StepIndicator(currentStep = state.currentStep)
                     Spacer(Modifier.height(Spacing.xxl))
-                }
 
-                // Content Area with Transition
-                Box(modifier = Modifier.weight(1f)) {
-                    AnimatedContent(
-                        targetState = state.currentStep,
-                        transitionSpec = {
-                            if (targetState > initialState) {
-                                (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-                            } else {
-                                (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
-                            }.using(SizeTransform(clip = false))
-                        },
-                        label = "step_transition"
-                    ) { step ->
-                        when (step) {
-                            1 -> LocationStep(state.selectedLocation, viewModel::onLocationSelected)
-                            2 -> SoilStep(state.selectedSoilType, viewModel::onSoilTypeSelected)
-                            3 -> SeasonStep(state.selectedSeason, viewModel::onSeasonSelected)
-                            4 -> WaterStep(state.waterSource, viewModel::onWaterSourceSelected)
-                            5 -> BudgetStep(state.budget, viewModel::onBudgetChanged)
-                            else -> RecommendationResults(state)
+                    // Content Area with Transition
+                    Box(modifier = Modifier.weight(1f)) {
+                        AnimatedContent(
+                            targetState = state.currentStep,
+                            transitionSpec = {
+                                if (targetState > initialState) {
+                                    (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+                                } else {
+                                    (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
+                                }.using(SizeTransform(clip = false))
+                            },
+                            label = "step_transition"
+                        ) { step ->
+                            when (step) {
+                                1 -> LocationStep(state.selectedLocation, viewModel::onLocationSelected)
+                                2 -> SoilStep(state.selectedSoilType, viewModel::onSoilTypeSelected)
+                                3 -> SeasonStep(state.selectedSeason, viewModel::onSeasonSelected)
+                                4 -> WaterStep(state.waterSource, viewModel::onWaterSourceSelected)
+                                5 -> BudgetStep(state.budget, viewModel::onBudgetChanged)
+                                else -> Box(Modifier) // Should not happen
+                            }
                         }
                     }
-                }
 
-                // Navigation Buttons
-                if (state.currentStep <= 5) {
+                    // Navigation Buttons
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -142,6 +144,9 @@ fun CropRecommendationScreen(
                         )
                     }
                 }
+            } else {
+                // Results Area - Fixed scrolling by making it a single LazyColumn
+                RecommendationResults(state, onNavigate)
             }
         }
     }
@@ -400,105 +405,129 @@ fun translateType(type: String): String {
 }
 
 @Composable
-fun RecommendationResults(state: CropRecommendationState) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(stringResource(R.string.top_picks_for_your_farm), style = TypographyTokens.HeadingM, color = Color.White)
-        Text(stringResource(R.string.optimal_crops_subtitle), style = TypographyTokens.BodyS, color = DarkTextSub)
-        
-        Spacer(Modifier.height(Spacing.m))
-        
+fun RecommendationResults(state: CropRecommendationState, onNavigate: (String) -> Unit) {
+    val topPick = state.recommendations.firstOrNull()
+    val otherPicks = state.recommendations.drop(1)
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(Spacing.m),
+        contentPadding = PaddingValues(bottom = Spacing.xl)
+    ) {
+        item {
+            Column {
+                Text(
+                    stringResource(R.string.top_picks_for_your_farm),
+                    style = TypographyTokens.HeadingM,
+                    color = Color.White
+                )
+                Text(
+                    stringResource(R.string.optimal_crops_subtitle),
+                    style = TypographyTokens.BodyS,
+                    color = DarkTextSub
+                )
+                Spacer(Modifier.height(Spacing.m))
+            }
+        }
+
         if (state.isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = BrandGreenGlow)
+            item {
+                Box(Modifier.fillMaxWidth().padding(Spacing.xl), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = BrandGreenGlow)
+                }
             }
         } else if (state.recommendations.isEmpty()) {
-            EmptyStateView(
-                lottieRes = 0, // Placeholder
-                title = stringResource(R.string.no_matches_found),
-                subtitle = stringResource(R.string.adjust_filters_subtitle)
-            )
+            item {
+                EmptyStateView(
+                    lottieRes = 0, // Placeholder
+                    title = stringResource(R.string.no_matches_found),
+                    subtitle = stringResource(R.string.adjust_filters_subtitle)
+                )
+            }
         } else {
-            val topPick = state.recommendations.first()
-            val otherPicks = state.recommendations.drop(1)
-
             // Hero Card for #1 Position
-            KrishiCard(
-                modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.l),
-                gradient = GradientGreen,
-                glowColor = BrandGreenGlow.copy(alpha = 0.4f)
-            ) {
-                Row(
-                    modifier = Modifier.padding(Spacing.xl),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        StatusPill(text = stringResource(R.string.best_match), type = StatusType.SUCCESS)
-                        Spacer(Modifier.height(8.dp))
-                        Text(topPick.name, style = TypographyTokens.DisplayM, color = Color.White)
-                        Text(translateType(topPick.type), style = TypographyTokens.BodyM, color = Color.White.copy(alpha = 0.8f))
-                        Spacer(Modifier.height(Spacing.m))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Icon(Icons.Default.TrendingUp, null, tint = Color.White, modifier = Modifier.size(16.dp))
-                            Text(stringResource(R.string.high_yield_potential), style = TypographyTokens.Micro, color = Color.White)
+            topPick?.let { crop ->
+                item {
+                    KrishiCard(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.s),
+                        gradient = GradientGreen,
+                        glowColor = BrandGreenGlow.copy(alpha = 0.4f),
+                        onClick = { onNavigate(Screen.KrishiBot.route + "?prompt=Tell me more about ${crop.name} cultivation") }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(Spacing.xl),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                StatusPill(text = stringResource(R.string.best_match), type = StatusType.SUCCESS)
+                                Spacer(Modifier.height(8.dp))
+                                Text(crop.name, style = TypographyTokens.DisplayM, color = Color.White)
+                                Text(translateType(crop.type), style = TypographyTokens.BodyM, color = Color.White.copy(alpha = 0.8f))
+                                Spacer(Modifier.height(Spacing.m))
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Icon(Icons.AutoMirrored.Filled.TrendingUp, null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                    Text(stringResource(R.string.high_yield_potential), style = TypographyTokens.Micro, color = Color.White)
+                                }
+                            }
+                            CropScoreGauge(score = crop.matchScore, size = 100.dp)
                         }
                     }
-                    
-                    CropScoreGauge(score = topPick.matchScore, size = 100.dp)
                 }
             }
 
             if (state.aiAdvice != null) {
-                KrishiCard(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.m),
-                    gradient = Brush.linearGradient(listOf(Color(0xFF1A237E), Color(0xFF311B92))),
-                    glowColor = Color(0x336200EA)
-                ) {
-                    Column(modifier = Modifier.padding(Spacing.md)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.AutoAwesome, "AI", tint = BrandAmber, modifier = Modifier.size(20.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text("AI INSIGHT", style = TypographyTokens.Label, color = BrandAmber)
+                item {
+                    KrishiCard(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = Spacing.s),
+                        gradient = Brush.linearGradient(listOf(Color(0xFF1A237E), Color(0xFF311B92))),
+                        glowColor = Color(0x336200EA)
+                    ) {
+                        Column(modifier = Modifier.padding(Spacing.md)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.AutoAwesome, "AI", tint = BrandAmber, modifier = Modifier.size(20.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text("AI INSIGHT", style = TypographyTokens.Label, color = BrandAmber)
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            Text(state.aiAdvice, style = TypographyTokens.BodyS, color = Color.White)
                         }
-                        Spacer(Modifier.height(8.dp))
-                        Text(state.aiAdvice, style = TypographyTokens.BodyS, color = Color.White)
                     }
                 }
             }
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
-                items(otherPicks) { crop ->
-                    KrishiCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        gradient = DarkSurface2.toBrush()
-                    ) {
-                        Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(60.dp).background(BrandGreenLight.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Grass, null, tint = BrandGreenLight)
-                            }
-                            Spacer(Modifier.width(Spacing.m))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(crop.name, style = TypographyTokens.HeadingS, color = Color.White)
-                                    Spacer(Modifier.width(8.dp))
-                                    Text(
-                                        text = translateType(crop.type),
-                                        style = TypographyTokens.Micro,
-                                        color = BrandAmber,
-                                        modifier = Modifier
-                                            .background(BrandAmber.copy(0.1f), ShapePill)
-                                            .padding(horizontal = 8.dp, vertical = 2.dp)
-                                    )
-                                }
-                                Text(stringResource(R.string.optimal_conditions), style = TypographyTokens.Micro, color = SuccessGreen)
-                                Spacer(Modifier.height(4.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    StatusPill(text = translateSeason(crop.season), type = StatusType.INFO)
-                                    StatusPill(text = stringResource(R.string.match_score_percentage, crop.matchScore), type = StatusType.SUCCESS)
-                                }
-                            }
-                            Icon(Icons.Default.ChevronRight, null, tint = DarkTextSub)
+            items(otherPicks) { crop ->
+                KrishiCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    gradient = DarkSurface2.toBrush(),
+                    onClick = { onNavigate(Screen.KrishiBot.route + "?prompt=Tell me more about ${crop.name} cultivation") }
+                ) {
+                    Row(modifier = Modifier.padding(Spacing.md), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(60.dp).background(BrandGreenLight.copy(0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Grass, null, tint = BrandGreenLight)
                         }
+                        Spacer(Modifier.width(Spacing.m))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(crop.name, style = TypographyTokens.HeadingS, color = Color.White)
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = translateType(crop.type),
+                                    style = TypographyTokens.Micro,
+                                    color = BrandAmber,
+                                    modifier = Modifier
+                                        .background(BrandAmber.copy(0.1f), ShapePill)
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                )
+                            }
+                            Text(stringResource(R.string.optimal_conditions), style = TypographyTokens.Micro, color = SuccessGreen)
+                            Spacer(Modifier.height(4.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                StatusPill(text = translateSeason(crop.season), type = StatusType.INFO)
+                                StatusPill(text = stringResource(R.string.match_score_percentage, crop.matchScore), type = StatusType.SUCCESS)
+                            }
+                        }
+                        Icon(Icons.Default.ChevronRight, null, tint = DarkTextSub)
                     }
                 }
             }

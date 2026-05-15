@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.shoping.agrismart.domain.model.ScanResult
 import dagger.hilt.android.qualifiers.ApplicationContext
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.ops.NormalizeOp
@@ -17,7 +21,8 @@ import javax.inject.Singleton
 
 @Singleton
 class PlantDiseaseClassifier @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val generativeModel: GenerativeModel
 ) {
     private var interpreter: Interpreter? = null
     private var labels: List<String> = emptyList()
@@ -33,10 +38,14 @@ class PlantDiseaseClassifier @Inject constructor(
         }
     }
 
-    fun classify(bitmap: Bitmap): ScanResult {
+    suspend fun classify(bitmap: Bitmap, useGemini: Boolean = false): ScanResult = withContext(Dispatchers.IO) {
+        if (useGemini) {
+            return@withContext classifyWithGemini(bitmap)
+        }
+
         val interpreter = interpreter
         if (interpreter == null || labels.isEmpty()) {
-            return getMockResult()
+            return@withContext getMockResult()
         }
 
         val imageProcessor = ImageProcessor.Builder()
@@ -61,7 +70,7 @@ class PlantDiseaseClassifier @Inject constructor(
         val cropName = parts.getOrNull(0)?.replace("_", " ") ?: "Unknown"
         val diseaseName = parts.getOrNull(1)?.replace("_", " ") ?: "Healthy"
 
-        return ScanResult(
+        ScanResult(
             id = UUID.randomUUID().toString(),
             cropName = cropName,
             diseaseName = diseaseName,
@@ -69,6 +78,48 @@ class PlantDiseaseClassifier @Inject constructor(
             treatment = getTreatmentForDisease(diseaseName),
             timestamp = Date()
         )
+    }
+
+    private suspend fun classifyWithGemini(bitmap: Bitmap): ScanResult {
+        val prompt = """
+            Analyze this agricultural image. Identify the crop and any disease present.
+            Respond strictly in the following JSON format:
+            {
+              "crop": "Crop Name",
+              "disease": "Disease Name or 'Healthy'",
+              "confidence": 0.95,
+              "treatment": "3-step bullet point treatment plan"
+            }
+            If the image is not a plant or crop, return "Unknown" for crop and disease.
+        """.trimIndent()
+
+        return try {
+            val response = generativeModel.generateContent(
+                content {
+                    image(bitmap)
+                    text(prompt)
+                }
+            )
+            val responseText = response.text ?: throw Exception("Empty response")
+            
+            // Basic JSON parsing (better to use Gson if possible, but manual for simplicity here)
+            // Expecting: { "crop": "...", "disease": "...", "confidence": 0.9, "treatment": "..." }
+            val crop = Regex("\"crop\":\\s*\"(.*?)\"").find(responseText)?.groupValues?.get(1) ?: "Unknown"
+            val disease = Regex("\"disease\":\\s*\"(.*?)\"").find(responseText)?.groupValues?.get(1) ?: "Healthy"
+            val confidence = Regex("\"confidence\":\\s*([0-9.]+)").find(responseText)?.groupValues?.get(1)?.toFloatOrNull() ?: 0.9f
+            val treatment = Regex("\"treatment\":\\s*\"(.*?)\"").find(responseText)?.groupValues?.get(1) ?: getTreatmentForDisease(disease)
+
+            ScanResult(
+                id = UUID.randomUUID().toString(),
+                cropName = crop,
+                diseaseName = disease,
+                confidence = confidence,
+                treatment = treatment.replace("\\n", "\n"),
+                timestamp = Date()
+            )
+        } catch (e: Exception) {
+            getMockResult()
+        }
     }
 
     private fun getTreatmentForDisease(disease: String): String {

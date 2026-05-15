@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.shoping.agrismart.domain.model.Comment
 import com.shoping.agrismart.domain.model.Post
+import com.shoping.agrismart.presentation.navigation.Screen
 import com.shoping.agrismart.presentation.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,6 +42,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 @Composable
 fun CommunityScreen(
     onBack: () -> Unit,
+    onNavigate: (String) -> Unit,
     viewModel: CommunityViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -88,7 +90,7 @@ fun CommunityScreen(
             Column(modifier = Modifier.padding(horizontal = Spacing.md)) {
                 when (selectedTab) {
                     0 -> CommunityTab(state, viewModel)
-                    1 -> MarketplaceTab()
+                    1 -> MarketplaceTab(onNavigate)
                     2 -> OutbreaksTab()
                 }
             }
@@ -444,7 +446,7 @@ fun CommunityTab(state: CommunityState, viewModel: CommunityViewModel) {
                 items(state.posts) { post ->
                     PremiumPostCard(
                         post = post,
-                        onLike = { viewModel.likePost(post.id) },
+                        onLike = { viewModel.likePost(post) },
                         onCommentClick = { viewModel.selectPostForComments(post.id) }
                     )
                 }
@@ -454,20 +456,23 @@ fun CommunityTab(state: CommunityState, viewModel: CommunityViewModel) {
 }
 
 @Composable
-fun MarketplaceTab() {
+fun MarketplaceTab(onNavigate: (String) -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    var showListingDialog by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(Modifier.height(Spacing.m))
         SectionHeader(
             title = "Sell My Produce", 
             subtitle = "Direct farmer-to-buyer channel",
             actionText = "List Item",
-            onAction = { }
+            onAction = { showListingDialog = true }
         )
         
         val products = listOf(
-            MarketProduct("Organic Wheat", "₹2,500/quintal", "Nagpur", "50 quintals", "A+ Grade quality, strictly organic.", "Farmer Ramesh"),
-            MarketProduct("Fresh Tomatoes", "₹40/kg", "Nashik", "200 kg", "Red ripe tomatoes, locally grown.", "Suresh K."),
-            MarketProduct("Mustard Seeds", "₹5,200/quintal", "Ludhiana", "10 quintals", "High oil content, dried seeds.", "Amrit Singh")
+            MarketProduct("Organic Wheat", "₹2,500/quintal", "Nagpur", "50 quintals", "A+ Grade quality, strictly organic.", "Farmer Ramesh", "+919876543210"),
+            MarketProduct("Fresh Tomatoes", "₹40/kg", "Nashik", "200 kg", "Red ripe tomatoes, locally grown.", "Suresh K.", "+919876543211"),
+            MarketProduct("Mustard Seeds", "₹5,200/quintal", "Ludhiana", "10 quintals", "High oil content, dried seeds.", "Amrit Singh", "+919876543212")
         )
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(Spacing.m)) {
@@ -492,9 +497,20 @@ fun MarketplaceTab() {
                         Text(product.description, style = TypographyTokens.BodyS, color = DarkText, maxLines = 2)
                         Spacer(Modifier.height(Spacing.m))
                         Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                            GlowButton(text = "Chat with Seller", modifier = Modifier.weight(1f), onClick = { })
+                            GlowButton(
+                                text = "Chat with Seller", 
+                                modifier = Modifier.weight(1f), 
+                                onClick = { 
+                                    onNavigate(Screen.KrishiBot.route + "?prompt=I want to buy ${product.name} from ${product.seller}. Can you help me negotiate or find details?")
+                                }
+                            )
                             OutlinedButton(
-                                onClick = { },
+                                onClick = { 
+                                    val intent = android.content.Intent(android.content.Intent.ACTION_DIAL).apply {
+                                        data = android.net.Uri.parse("tel:${product.phone}")
+                                    }
+                                    context.startActivity(intent)
+                                },
                                 modifier = Modifier.weight(1f).height(48.dp),
                                 shape = ShapePill,
                                 border = BorderStroke(1.dp, DarkBorder)
@@ -506,6 +522,18 @@ fun MarketplaceTab() {
                 }
             }
         }
+    }
+
+    if (showListingDialog) {
+        AlertDialog(
+            onDismissRequest = { showListingDialog = false },
+            containerColor = DarkSurface,
+            title = { Text("List Your Produce", style = TypographyTokens.HeadingM, color = Color.White) },
+            text = { Text("This feature will allow you to upload your crop photos and details for buyers to see. Coming soon!", color = DarkText) },
+            confirmButton = {
+                GlowButton(text = "Got it", onClick = { showListingDialog = false })
+            }
+        )
     }
 }
 
@@ -551,5 +579,5 @@ fun OutbreaksTab() {
     }
 }
 
-data class MarketProduct(val name: String, val price: String, val location: String, val stock: String, val description: String, val seller: String)
+data class MarketProduct(val name: String, val price: String, val location: String, val stock: String, val description: String, val seller: String, val phone: String)
 data class OutbreakReport(val title: String, val location: String, val time: String, val risk: String)

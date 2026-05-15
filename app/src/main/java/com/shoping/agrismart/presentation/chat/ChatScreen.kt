@@ -54,7 +54,9 @@ import com.shoping.agrismart.presentation.navigation.Screen
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.Stop
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,15 +73,36 @@ fun ChatScreen(
 
     // TTS Engine
     var tts by remember { mutableStateOf<TextToSpeech?>(null) }
+    var isSpeaking by remember { mutableStateOf<String?>(null) } // Track which message ID is being spoken
+
     DisposableEffect(Unit) {
         tts = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale.getDefault()
+                // Set to Indian English for a natural tone
+                tts?.language = Locale("en", "IN")
+                tts?.setPitch(1.0f)
+                tts?.setSpeechRate(0.9f)
             }
         }
         onDispose {
             tts?.stop()
             tts?.shutdown()
+        }
+    }
+
+    // Function to speak or stop
+    val toggleSpeech: (ChatMessage) -> Unit = { message ->
+        if (isSpeaking == message.id) {
+            tts?.stop()
+            isSpeaking = null
+        } else {
+            // Auto-detect language for Hindi/English support
+            val content = message.content
+            val locale = if (content.any { it.toInt() in 2304..2431 }) Locale("hi", "IN") else Locale("en", "IN")
+            tts?.language = locale
+            
+            tts?.speak(content, TextToSpeech.QUEUE_FLUSH, null, message.id)
+            isSpeaking = message.id
         }
     }
 
@@ -114,13 +137,7 @@ fun ChatScreen(
         }
     }
 
-    // Voice Out logic: Speak when bot message arrives
-    LaunchedEffect(state.messages.size) {
-        val lastMessage = state.messages.lastOrNull()
-        if (lastMessage != null && lastMessage.role == MessageRole.BOT) {
-            tts?.speak(lastMessage.content, TextToSpeech.QUEUE_FLUSH, null, null)
-        }
-    }
+    // Voice Out logic: Removed automatic playback
 
     // Auto-scroll to bottom...
     LaunchedEffect(state.messages.size, state.isLoading, state.error) {
@@ -141,12 +158,17 @@ fun ChatScreen(
                     state = listState,
                     modifier = Modifier.fillMaxSize().padding(horizontal = Spacing.md),
                     verticalArrangement = Arrangement.spacedBy(Spacing.md),
-                    contentPadding = PaddingValues(top = Spacing.md, bottom = 120.dp)
+                    contentPadding = PaddingValues(top = Spacing.md, bottom = 180.dp) // Increased padding to avoid overlap
                 ) {
                     items(state.messages) { message ->
-                        ChatBubble(message) {
-                            viewModel.onSendMessage("Save this message: ${message.content.take(50)}...")
-                        }
+                        ChatBubble(
+                            message = message,
+                            onSave = {
+                                viewModel.onSendMessage("Save this message: ${message.content.take(50)}...")
+                            },
+                            onSpeak = { toggleSpeech(message) },
+                            isSpeaking = isSpeaking == message.id
+                        )
                     }
                     if (state.isLoading) {
                         item { TypingIndicator() }
@@ -160,10 +182,15 @@ fun ChatScreen(
             }
         }
 
-        // Bottom Input Bar
+        // Bottom Input Bar Container with background for better visibility
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, DarkBg.copy(alpha = 0.95f), DarkBg)
+                    )
+                )
                 .navigationBarsPadding()
                 .padding(Spacing.md)
         ) {
@@ -250,7 +277,12 @@ fun ChatHeader(onBack: () -> Unit) {
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage, onSave: () -> Unit = {}) {
+fun ChatBubble(
+    message: ChatMessage,
+    isSpeaking: Boolean = false,
+    onSpeak: () -> Unit = {},
+    onSave: () -> Unit = {}
+) {
     val isUser = message.role == MessageRole.USER
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
     
@@ -283,8 +315,21 @@ fun ChatBubble(message: ChatMessage, onSave: () -> Unit = {}) {
                         color = Color.White
                     )
                     if (!isUser) {
-                        IconButton(onClick = onSave, modifier = Modifier.align(Alignment.End).size(32.dp).padding(4.dp)) {
-                            Icon(Icons.Default.PushPin, "Save", tint = BrandGreenGlow, modifier = Modifier.size(16.dp))
+                        Row(
+                            modifier = Modifier.align(Alignment.End).padding(end = 8.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            IconButton(onClick = onSpeak, modifier = Modifier.size(32.dp)) {
+                                Icon(
+                                    if (isSpeaking) Icons.Default.Stop else Icons.AutoMirrored.Filled.VolumeUp,
+                                    "Speak",
+                                    tint = if (isSpeaking) DangerRed else BrandGreenGlow,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            IconButton(onClick = onSave, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Default.PushPin, "Save", tint = BrandGreenGlow, modifier = Modifier.size(18.dp))
+                            }
                         }
                     }
                 }

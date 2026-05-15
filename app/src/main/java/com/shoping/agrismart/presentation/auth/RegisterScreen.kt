@@ -111,6 +111,27 @@ fun RegisterScreen(
                         singleLine = true,
                         enabled = !state.isLoading
                     )
+
+                    Spacer(Modifier.height(Spacing.m))
+
+                    Text("CONFIRM PASSWORD", style = TypographyTokens.Label, color = DarkTextSub)
+                    OutlinedTextField(
+                        value = state.confirmPassword,
+                        onValueChange = { viewModel.onConfirmPasswordChange(it) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = BrandGreenGlow) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = DarkSurface2,
+                            unfocusedContainerColor = DarkSurface2,
+                            focusedBorderColor = BrandGreenLight,
+                            unfocusedBorderColor = DarkBorder.copy(alpha = 0.5f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White
+                        ),
+                        singleLine = true,
+                        enabled = !state.isLoading
+                    )
                 }
             }
 

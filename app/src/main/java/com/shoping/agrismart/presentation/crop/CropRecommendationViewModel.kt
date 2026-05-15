@@ -10,11 +10,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CropRecommendationViewModel @Inject constructor(
-    private val repository: CropRepository
+    private val repository: CropRepository,
+    private val userPreferenceManager: com.shoping.agrismart.data.UserPreferenceManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CropRecommendationState())
     val state: StateFlow<CropRecommendationState> = _state.asStateFlow()
+
+    init {
+        // Pre-fill with saved preferences if any
+        viewModelScope.launch {
+            userPreferenceManager.userPreferences.first().let { prefs ->
+                _state.update { it.copy(
+                    selectedLocation = prefs.selectedLocation,
+                    selectedSoilType = prefs.selectedSoil,
+                    selectedSeason = prefs.selectedSeason
+                ) }
+            }
+        }
+    }
 
     fun onLocationSelected(location: String) {
         _state.update { it.copy(selectedLocation = location) }
@@ -65,6 +79,13 @@ class CropRecommendationViewModel @Inject constructor(
             }.collect { crops ->
                 _state.update { it.copy(recommendations = crops, currentStep = 6) }
                 
+                // Save context for other modules
+                if (crops.isNotEmpty()) {
+                    userPreferenceManager.updateLocation(_state.value.selectedLocation, "Amritsar") // District placeholder
+                    userPreferenceManager.updateCrop(crops.first().name)
+                    userPreferenceManager.updateSoilAndSeason(_state.value.selectedSoilType, _state.value.selectedSeason)
+                }
+
                 // After getting crops, fetch AI advice
                 if (crops.isNotEmpty()) {
                     repository.getAiCropAdvice(

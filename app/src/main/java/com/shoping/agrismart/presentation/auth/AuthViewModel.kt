@@ -46,14 +46,28 @@ class AuthViewModel @Inject constructor(
         _state.update { it.copy(password = password) }
     }
 
+    fun onConfirmPasswordChange(password: String) {
+        _state.update { it.copy(confirmPassword = password) }
+    }
+
     fun register() {
         viewModelScope.launch {
-            if (_state.value.email.isBlank() || _state.value.password.isBlank()) {
+            val email = _state.value.email
+            val password = _state.value.password
+            val confirmPassword = _state.value.confirmPassword
+
+            if (email.isBlank() || password.isBlank()) {
                 _state.update { it.copy(error = "Email and Password cannot be empty") }
                 return@launch
             }
+
+            if (password != confirmPassword) {
+                _state.update { it.copy(error = "Passwords do not match") }
+                return@launch
+            }
+
             _state.update { it.copy(isLoading = true, error = null) }
-            repository.signUpWithEmail(_state.value.email, _state.value.password)
+            repository.signUpWithEmail(email, password)
                 .onSuccess { user ->
                     _state.update { it.copy(isLoading = false, isRegistered = true, user = user) }
                 }

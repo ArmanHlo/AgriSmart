@@ -39,7 +39,8 @@ class MarketRepositoryImpl @Inject constructor(
                     arrivalDate = record.arrivalDate,
                     minPrice = record.minPrice.toDoubleOrNull() ?: 0.0,
                     maxPrice = record.maxPrice.toDoubleOrNull() ?: 0.0,
-                    modalPrice = record.modalPrice.toDoubleOrNull() ?: 0.0
+                    modalPrice = record.modalPrice.toDoubleOrNull() ?: 0.0,
+                    unit = "Quintal" // Default for data.gov.in mandi prices
                 )
             }
             emit(marketPrices)
@@ -51,13 +52,13 @@ class MarketRepositoryImpl @Inject constructor(
 
     private fun getMockMarketPrices(): List<MarketPrice> {
         return listOf(
-            MarketPrice("Maharashtra", "Nashik", "Nashik Mandi", "Onion", "Red", "12/05/2024", 1200.0, 1800.0, 1550.0),
-            MarketPrice("Punjab", "Amritsar", "Amritsar Mandi", "Wheat", "Kalyan", "12/05/2024", 2100.0, 2400.0, 2275.0),
-            MarketPrice("Uttar Pradesh", "Agra", "Agra Mandi", "Potato", "Desi", "12/05/2024", 800.0, 1200.0, 1050.0),
-            MarketPrice("Karnataka", "Bangalore", "Kolar Mandi", "Tomato", "Local", "12/05/2024", 1500.0, 2500.0, 2100.0),
-            MarketPrice("Madhya Pradesh", "Indore", "Indore Mandi", "Soyabean", "Yellow", "12/05/2024", 4200.0, 4800.0, 4550.0),
-            MarketPrice("Gujarat", "Rajkot", "Rajkot Mandi", "Cotton", "Shankar 6", "12/05/2024", 6500.0, 7500.0, 7100.0),
-            MarketPrice("Andhra Pradesh", "Guntur", "Guntur Mandi", "Chilli", "Teja", "12/05/2024", 18000.0, 22000.0, 20500.0)
+            MarketPrice("Maharashtra", "Nashik", "Nashik Mandi", "Onion", "Red", "12/05/2024", 1200.0, 1800.0, 1550.0, "Quintal"),
+            MarketPrice("Punjab", "Amritsar", "Amritsar Mandi", "Wheat", "Kalyan", "12/05/2024", 2100.0, 2400.0, 2275.0, "Quintal"),
+            MarketPrice("Uttar Pradesh", "Agra", "Agra Mandi", "Potato", "Desi", "12/05/2024", 800.0, 1200.0, 1050.0, "Quintal"),
+            MarketPrice("Karnataka", "Bangalore", "Kolar Mandi", "Tomato", "Local", "12/05/2024", 1500.0, 2500.0, 2100.0, "Quintal"),
+            MarketPrice("Madhya Pradesh", "Indore", "Indore Mandi", "Soyabean", "Yellow", "12/05/2024", 4200.0, 4800.0, 4550.0, "Quintal"),
+            MarketPrice("Gujarat", "Rajkot", "Rajkot Mandi", "Cotton", "Shankar 6", "12/05/2024", 6500.0, 7500.0, 7100.0, "Quintal"),
+            MarketPrice("Andhra Pradesh", "Guntur", "Guntur Mandi", "Chilli", "Teja", "12/05/2024", 18000.0, 22000.0, 20500.0, "Quintal")
         )
     }
 }

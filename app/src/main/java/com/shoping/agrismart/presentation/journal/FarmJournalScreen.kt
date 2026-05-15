@@ -122,6 +122,13 @@ fun JournalHeader(onBack: () -> Unit) {
         Spacer(Modifier.width(Spacing.m))
         Text("Farm Journal", style = TypographyTokens.HeadingL)
         Spacer(Modifier.weight(1f))
+        IconButton(
+            onClick = { /* Export PDF Mock */ }, 
+            modifier = Modifier.clip(CircleShape).background(DarkSurface2)
+        ) {
+            Icon(Icons.Default.PictureAsPdf, null, tint = Color.White)
+        }
+        Spacer(Modifier.width(Spacing.s))
         IconButton(onClick = { /* Analytics */ }, modifier = Modifier.clip(CircleShape).background(DarkSurface2)) {
             Icon(Icons.Default.BarChart, null, tint = BrandGreenGlow)
         }

@@ -7,6 +7,7 @@ data class AuthState(
     val error: String? = null,
     val email: String = "",
     val password: String = "",
+    val confirmPassword: String = "",
     val phoneNumber: String = "",
     val otpCode: String = "",
     val isOtpSent: Boolean = false,

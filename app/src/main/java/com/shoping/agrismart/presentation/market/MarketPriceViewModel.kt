@@ -11,14 +11,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MarketPriceViewModel @Inject constructor(
-    private val repository: MarketRepository
+    private val repository: MarketRepository,
+    private val userPreferenceManager: com.shoping.agrismart.data.UserPreferenceManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MarketPriceState())
     val state: StateFlow<MarketPriceState> = _state.asStateFlow()
 
     init {
-        fetchPrices()
+        viewModelScope.launch {
+            userPreferenceManager.userPreferences.collect { prefs ->
+                fetchPrices(stateFilter = prefs.selectedLocation)
+            }
+        }
     }
 
     fun fetchPrices(stateFilter: String? = null, commodityFilter: String? = null) {

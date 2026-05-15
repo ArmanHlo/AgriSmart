@@ -181,11 +181,13 @@ fun MarketPriceCardPremium(price: MarketPrice) {
             
             Column(modifier = Modifier.weight(1f)) {
                 Text(price.commodity, style = TypographyTokens.HeadingS, color = Color.White)
-                Text(price.market, style = TypographyTokens.Micro, color = DarkTextSub)
+                Text("${price.market}, ${price.district}", style = TypographyTokens.Micro, color = DarkTextSub)
             }
             
             Column(horizontalAlignment = Alignment.End) {
                 Text("₹${price.modalPrice}", style = TypographyTokens.DataNum, color = Color.White)
+                Text("per ${price.unit}", style = TypographyTokens.Micro, color = DarkTextSub)
+                Spacer(Modifier.height(2.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         if (isUp) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
